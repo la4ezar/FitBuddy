@@ -1,0 +1,61 @@
+type Query {
+    getUserByID(userID: ID!): User
+    getCoachByID(coachID: ID!): Coach
+    getWorkoutLogByID(workoutLogID: ID!): WorkoutLog
+    getNutritionLogByID(nutritionLogID: ID!): NutritionLog
+}
+
+type Mutation {
+    createUser(name: String!, email: String!): User
+    createCoach(name: String!, specialty: String!): Coach
+    createWorkoutLog(userID: ID!, exercise: String!, sets: Int!, reps: Int!, weight: Float!): WorkoutLog
+    createNutritionLog(userID: ID!, description: String!, calories: Int!): NutritionLog
+}
+
+type User {
+    ID: ID!
+    Name: String!
+    Email: String!
+    Profile: UserProfile
+    Goals: [FitnessGoal]
+    Workouts: [WorkoutLog]
+    NutritionLogs: [NutritionLog]
+}
+
+type UserProfile {
+    Age: Int
+    Height: Float
+    Weight: Float
+}
+
+type Coach {
+    ID: ID!
+    Name: String!
+    Specialty: String!
+}
+
+type FitnessGoal {
+    ID: ID!
+    UserID: ID!
+    Description: String!
+    TargetDate: String
+    Achieved: Boolean
+}
+
+type WorkoutLog {
+    ID: ID!
+    UserID: ID!
+    Exercise: String!
+    Sets: Int!
+    Reps: Int!
+    Weight: Float!
+    Date: String!
+}
+
+type NutritionLog {
+    ID: ID!
+    UserID: ID!
+    Description: String!
+    Calories: Int!
+    Date: String!
+}
