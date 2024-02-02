@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/FitBuddy/internal/domain"
 	"github.com/FitBuddy/internal/domain/coach"
+	"github.com/FitBuddy/internal/domain/exercise"
 	"github.com/FitBuddy/internal/domain/forum"
 	"github.com/FitBuddy/internal/domain/goal"
 	"github.com/FitBuddy/internal/domain/leaderboard"
@@ -11,27 +13,30 @@ import (
 	"github.com/FitBuddy/internal/domain/sleep"
 	"github.com/FitBuddy/internal/domain/user"
 	"github.com/FitBuddy/internal/domain/workout"
+	"github.com/FitBuddy/pkg/graphql"
 	"github.com/FitBuddy/pkg/log"
 	"github.com/FitBuddy/pkg/persistence"
 	"github.com/pkg/errors"
 	"net/http"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	ctx := context.TODO()
-
 	databaseCfg := persistence.DatabaseConfig{
-		User:               "",
-		Password:           "",
-		Host:               "",
-		Port:               "",
-		Name:               "",
-		SSLMode:            "",
-		MaxOpenConnections: 0,
-		MaxIdleConnections: 0,
-		ConnMaxLifetime:    0,
+		User:               "postgres",
+		Password:           "pgsql@12345",
+		Host:               "127.0.0.1",
+		Port:               "5432",
+		Name:               "fitbuddy",
+		SSLMode:            "disable",
+		MaxOpenConnections: 10,
+		MaxIdleConnections: 10,
+		ConnMaxLifetime:    30 * time.Second,
 	}
 	db, closeFunc, err := persistence.Configure(ctx, databaseCfg)
 	exitOnError(err, "Error while establishing the connection to the database")
@@ -43,6 +48,7 @@ func main() {
 	// Create repositories for each aggregate
 	userRepository := user.NewRepository(db)
 	coachRepository := coach.NewRepository(db)
+	exerciseRepository := exercise.NewRepository(db)
 	workoutRepository := workout.NewRepository(db)
 	sleepRepository := sleep.NewRepository(db)
 	forumRepository := forum.NewRepository(db)
@@ -53,6 +59,7 @@ func main() {
 	// Create services for each aggregate
 	userService := user.NewService(userRepository)
 	coachService := coach.NewService(coachRepository)
+	exerciseService := exercise.NewService(exerciseRepository)
 	workoutService := workout.NewService(workoutRepository)
 	sleepService := sleep.NewService(sleepRepository)
 	forumService := forum.NewService(forumRepository)
@@ -63,6 +70,7 @@ func main() {
 	// Create resolvers for each aggregate
 	userResolver := user.NewResolver(userService)
 	coachResolver := coach.NewResolver(coachService)
+	exerciseResolver := exercise.NewResolver(exerciseService)
 	workoutResolver := workout.NewResolver(workoutService)
 	sleepResolver := sleep.NewResolver(sleepService)
 	forumResolver := forum.NewResolver(forumService)
@@ -71,16 +79,42 @@ func main() {
 	leaderboardResolver := leaderboard.NewLeaderboardResolver(leaderboardService)
 
 	// Create a new mux router
-	router := mux.NewRouter()
+	mainRouter := mux.NewRouter()
 
-	// Register GraphQL handlers
-	server.RegisterGraphQLHandlers(router, userResolver, coachResolver, workoutResolver, sleepResolver, forumResolver, goalResolver, nutritionResolver, leaderboardResolver)
+	PlaygroundAPIEndpoint := "/graphql"
+	mainRouter.HandleFunc("/", playground.Handler("Dataloader", PlaygroundAPIEndpoint))
+
+	rootResolver := domain.NewRootResolver(userResolver, coachResolver, exerciseResolver, forumResolver, goalResolver, leaderboardResolver, nutritionResolver, sleepResolver, workoutResolver)
+
+	gqlCfg := graphql.Config{
+		Resolvers: rootResolver,
+	}
+
+	executableSchema := graphql.NewExecutableSchema(gqlCfg)
+
+	gqlAPIEndpoint := "/graphql"
+	gqlAPIRouter := mainRouter.PathPrefix(gqlAPIEndpoint).Subrouter()
+
+	gqlServ := handler.NewDefaultServer(executableSchema)
+	gqlServ.SetRecoverFunc(func(ctx context.Context, err interface{}) (userMessage error) {
+		errText := fmt.Sprintf("%+v", err)
+
+		return errors.New(errText)
+	})
+
+	gqlAPIRouter.HandleFunc("", gqlServ.ServeHTTP)
 
 	// Serve the API on a specified port
-	port := 8080
-	address := fmt.Sprintf(":%d", port)
-	log.Printf("Server is running on http://localhost%s", address)
-	log.Fatal(http.ListenAndServe(address, router))
+	ServerTimeout := time.Second * 30
+	runMainSrv, shutdownMainSrv := createServer(ctx, "localhost:8080", mainRouter, "main", ServerTimeout)
+
+	go func() {
+		<-ctx.Done()
+		// Interrupt signal received - shut down the server
+		shutdownMainSrv()
+	}()
+
+	runMainSrv()
 }
 
 func exitOnError(err error, context string) {
@@ -88,4 +122,28 @@ func exitOnError(err error, context string) {
 		wrappedError := errors.Wrap(err, context)
 		log.D().Fatal(wrappedError)
 	}
+}
+
+func createServer(ctx context.Context, address string, handler http.Handler, name string, timeout time.Duration) (func(), func()) {
+	srv := &http.Server{
+		Addr:              address,
+		Handler:           handler,
+		ReadHeaderTimeout: timeout,
+	}
+
+	runFn := func() {
+		log.C(ctx).Infof("Running %s server on %s...", name, address)
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.C(ctx).WithError(err).Errorf("An error has occurred with %s HTTP server when ListenAndServe: %v", name, err)
+		}
+	}
+
+	shutdownFn := func() {
+		log.C(ctx).Infof("Shutting down %s server...", name)
+		if err := srv.Shutdown(context.Background()); err != nil {
+			log.C(ctx).WithError(err).Errorf("An error has occurred while shutting down HTTP server %s: %v", name, err)
+		}
+	}
+
+	return runFn, shutdownFn
 }

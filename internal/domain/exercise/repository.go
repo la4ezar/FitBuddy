@@ -3,16 +3,15 @@ package exercise
 import (
 	"context"
 	"database/sql"
-	"github.com/jmoiron/sqlx"
 )
 
 // Repository is a repository for managing exercise data.
 type Repository struct {
-	db *sqlx.DB
+	db *sql.DB
 }
 
 // NewRepository creates a new Repository instance.
-func NewRepository(db *sqlx.DB) *Repository {
+func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
 		db: db,
 	}
