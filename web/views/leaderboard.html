@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../src/css/dashboard.css">
-    <script src="../src/js/dashboard.js" type="module" defer></script>
-    <title>FitBuddy Dashboard</title>
+    <link rel="stylesheet" href="../src/css/leaderboard.css">
+    <link rel="stylesheet" href="../src/css/styles.css">
+    <title>FitBuddy Workout Tracker</title>
 </head>
 <body>
 <div class="dashboard-container">
@@ -25,10 +25,24 @@
         <button class="log-out-button">Log out</button>
     </div>
 
-    <div class="welcome-message">
-        <h1>Welcome, <span id="username">[Username]</span>!</h1>
-        <p class="motivational-sentence">Stay motivated! You're one workout away from a better mood.</p>
+    <div class="leaderboard">
+        <h1>Leaderboard</h1>
     </div>
 </div>
+
+<div class="leaderboard-container">
+    <table>
+        <thead>
+        <tr>
+            <th>User</th>
+            <th>Score</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<script src="js/leaderboard.js"></script>
 </body>
 </html>

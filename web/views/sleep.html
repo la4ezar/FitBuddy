@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../src/css/sleep.css">
+    <link rel="stylesheet" href="../src/css/styles.css">
+    <title>FitBuddy Workout Tracker</title>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="header">
+        <button class="logo">
+            <span class="fit">Fit</span><span class="buddy">Buddy</span>
+        </button>
+        <div class="navbar">
+            <a href="#">Workout</a>
+            <a href="#">Nutrition</a>
+            <a href="#">Sleep</a>
+            <a href="#">Goal</a>
+            <a href="#">Coaches</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">Forum</a>
+        </div>
+        <button class="log-out-button">Log out</button>
+    </div>
+
+    <div class="sleep-tracker">
+        <h1>Sleep tracker</h1>
+    </div>
+</div>
+
+<div class="sleep-container">
+    <div class="date-navigation">
+        <button class="prev-date" onclick="navigateDate(-1)">Previous Date</button>
+        <span class="current-date" id="currentDate"></span>
+        <button class="next-date" onclick="navigateDate(1)">Next Date</button>
+    </div>
+    <form id="sleep-form">
+        <label for="sleep-time">Sleep time:</label>
+        <input type="time" id="sleep-time" name="sleep-time" required>
+
+        <label for="wake-time">Wake time:</label>
+        <input type="time" id="wake-time" name="wake-time" required>
+
+        <button type="submit">Track Sleep</button>
+    </form>
+</div>
+
+<script src="../src/js/sleep.js"></script>
+</body>
+</html>

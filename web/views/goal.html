@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../src/css/goal.css">
+    <link rel="stylesheet" href="../src/css/styles.css">
+    <title>FitBuddy Workout Tracker</title>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="header">
+        <button class="logo">
+            <span class="fit">Fit</span><span class="buddy">Buddy</span>
+        </button>
+        <div class="navbar">
+            <a href="#">Workout</a>
+            <a href="#">Nutrition</a>
+            <a href="#">Sleep</a>
+            <a href="#">Goal</a>
+            <a href="#">Coaches</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">Forum</a>
+        </div>
+        <button class="log-out-button">Log out</button>
+    </div>
+
+    <div class="goal-tracker">
+        <h1>Goal tracker</h1>
+    </div>
+</div>
+
+<div class="goal-container">
+    <form id="goal-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required>
+
+        <label for="start-date">Start date:</label>
+        <input type="date" id="start-date" name="start-date" required>
+
+        <label for="end-date">End date:</label>
+        <input type="date" id="end-date" name="end-date" required>
+
+        <button type="submit">Track Goal</button>
+    </form>
+</div>
+
+<script src="js/goal.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../src/css/forum.css">
+    <link rel="stylesheet" href="../src/css/styles.css">
+    <title>FitBuddy Forum</title>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="header">
+        <button class="logo">
+            <span class="fit">Fit</span><span class="buddy">Buddy</span>
+        </button>
+        <div class="navbar">
+            <a href="#">Workout</a>
+            <a href="#">Nutrition</a>
+            <a href="#">Sleep</a>
+            <a href="#">Goal</a>
+            <a href="#">Coaches</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">Forum</a>
+        </div>
+        <button class="log-out-button">Log out</button>
+    </div>
+
+    <div class="forum">
+        <h1>Forum</h1>
+    </div>
+</div>
+
+<div class="forum-container">
+    <div class="post-container">
+        <h1>Add New Post</h1>
+        <form id="post-form">
+            <label for="post-title">Title:</label>
+            <input type="text" id="post-title" name="post-title" required>
+
+            <label for="post-content">Content:</label>
+            <textarea id="post-content" name="post-content" rows="4" required></textarea>
+
+            <button type="submit">Add Post</button>
+        </form>
+    </div>
+
+    <div class="post-display">
+        <h1>All Posts</h1>
+        <!-- Existing posts will be displayed here -->
+    </div>
+</div>
+
+<script src="js/forum.js"></script>
+</body>
+</html>

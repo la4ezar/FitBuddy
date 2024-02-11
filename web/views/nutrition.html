@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../src/css/nutrition.css">
+    <link rel="stylesheet" href="../src/css/styles.css">
+    <title>FitBuddy Workout Tracker</title>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="header">
+        <button class="logo">
+            <span class="fit">Fit</span><span class="buddy">Buddy</span>
+        </button>
+        <div class="navbar">
+            <a href="#">Workout</a>
+            <a href="#">Nutrition</a>
+            <a href="#">Sleep</a>
+            <a href="#">Goal</a>
+            <a href="#">Coaches</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">Forum</a>
+        </div>
+        <button class="log-out-button">Log out</button>
+    </div>
+
+    <div class="meal-tracker">
+        <h1>Meal tracker</h1>
+    </div>
+</div>
+
+<div class="nutrition-container">
+    <div class="date-navigation">
+        <button class="prev-date" onclick="navigateDate(-1)">Previous Date</button>
+        <span class="current-date" id="currentDate"></span>
+        <button class="next-date" onclick="navigateDate(1)">Next Date</button>
+    </div>
+    <form id="nutrition-form">
+        <label for="meal">Meal:</label>
+        <input list="mealList" id="meal" name="meal" required>
+        <datalist id="mealList">
+            <option value="Chicken">
+            <option value="Beef">
+            <option value="Pork">
+            <option value="Rice">
+        </datalist>
+
+        <label for="serving-size">Serving size:</label>
+        <input list="servingSizeList" id="serving-size" name="serving-size" required>
+        <datalist id="servingSizeList">
+            <option value="gram">
+            <option value="oz">
+            <option value="ml">
+        </datalist>
+
+        <label for="number-of-servings">Number of servings:</label>
+        <input type="number" id="number-of-servings" name="number-of-servings" required min="1">
+
+        <button type="submit">Track Meal</button>
+    </form>
+</div>
+
+<script src="../src/js/nutrition.js"></script>
+</body>
+</html>

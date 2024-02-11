@@ -70,3 +70,24 @@ h1 {
     font-size: 16px;
     margin-top: 0;
 }
+
+.log-out-button {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.log-out-button {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    background-color: #45a049; /* Match the login form submit button color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.log-out-button:hover {
+    background-color: #39843d; /* Darker shade on hover */
+}

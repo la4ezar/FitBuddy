@@ -1,0 +1,80 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.workout-container {
+    text-align: center;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+h2 {
+    color: #4CAF50;
+}
+
+.date-navigation {
+    margin-bottom: 20px;
+}
+
+.prev-date,
+.next-date {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.prev-date:hover,
+.next-date:hover {
+    background-color: #45a049;
+}
+
+.current-date {
+    margin: 0 10px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    margin-top: 10px;
+    color: #4CAF50;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.workout-tracker {
+    padding: 2px;
+    max-width: 600px;
+    margin: auto;
+    color: white; /* Text color matches the login form */
+}
