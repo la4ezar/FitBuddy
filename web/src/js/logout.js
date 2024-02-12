@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     alert('Registration failed. Please try again.');
                 } else {
                     alert('Registration successful!');
+                    document.cookie = `email=; SameSite=Lax; path=/;`;
                     // Redirect to the login page
                     window.location.href = './login.html'; // Update with the actual path
                 }
