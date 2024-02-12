@@ -47,8 +47,22 @@ type mutationResolver struct {
 }
 
 func (m mutationResolver) CreateUser(ctx context.Context, name string, email string) (*graphql.User, error) {
-	//TODO implement me
-	panic("implement me")
+	input := user.CreateUserInput{
+		Username: name,
+		Email:    email,
+	}
+
+	u, err := m.userResolver.CreateUserMutation(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	gqlUser := &graphql.User{
+		ID:    u.ID,
+		Email: u.Email,
+		Name:  u.Username,
+	}
+	return gqlUser, nil
 }
 
 func (m mutationResolver) CreateCoach(ctx context.Context, name string, specialty string) (*graphql.Coach, error) {
