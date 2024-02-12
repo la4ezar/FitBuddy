@@ -1,24 +1,22 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const registrationForm = document.getElementById('registration-form');
+    const logoutButton = document.querySelector('.log-out-button');
 
-    registrationForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const email = document.getElementById('reg-email').value;
-        const password = document.getElementById('reg-password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
-
-        if (password !== confirmPassword) {
-            alert('Passwords do not match.');
-            return;
-        }
-
+    logoutButton.addEventListener('click', function () {
         // Replace 'your-graphql-endpoint' with your actual GraphQL endpoint
         const graphqlEndpoint = 'http://localhost:8080/graphql';
 
+        const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+
+        if (emailCookie) {
+            console.log('Email:', emailCookie);
+        } else {
+            console.log('Email cookie not found.');
+        }
+
+        // Replace 'your-logout-mutation' with your actual GraphQL mutation for logout
         const gqlMutation = `
             mutation {
-                createUser(email: "${email}", password: "${password}") {
+                logoutUser(email: "${emailCookie}") {
                     ID
                 }
             }

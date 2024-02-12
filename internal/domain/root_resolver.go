@@ -12,6 +12,7 @@ import (
 	"github.com/FitBuddy/internal/domain/user"
 	"github.com/FitBuddy/internal/domain/workout"
 	"github.com/FitBuddy/pkg/graphql"
+	"github.com/FitBuddy/pkg/log"
 )
 
 var _ graphql.ResolverRoot = &RootResolver{}
@@ -46,21 +47,53 @@ type mutationResolver struct {
 	*RootResolver
 }
 
-func (m mutationResolver) CreateUser(ctx context.Context, name string, email string) (*graphql.User, error) {
+func (m mutationResolver) LoginUser(ctx context.Context, email string, password string) (*graphql.User, error) {
+	log.C(ctx).Infof("Logging user with email %q...", email)
+	u, err := m.userResolver.LoginUserMutation(ctx, email, password)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Infof("Successfully logged user with email %q...", email)
+
+	gqlUser := &graphql.User{
+		ID:    u.ID,
+		Email: u.Email,
+	}
+	return gqlUser, nil
+}
+
+func (m mutationResolver) LogoutUser(ctx context.Context, email string) (*graphql.User, error) {
+	log.C(ctx).Infof("Logging out user with email %q...", email)
+	u, err := m.userResolver.LogoutUserMutation(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Infof("Successfully logging out user with email %q...", email)
+
+	gqlUser := &graphql.User{
+		ID:    u.ID,
+		Email: u.Email,
+	}
+	return gqlUser, nil
+}
+
+func (m mutationResolver) CreateUser(ctx context.Context, email string, password string) (*graphql.User, error) {
+	log.C(ctx).Infof("Creating User with email %q...", email)
 	input := user.CreateUserInput{
-		Username: name,
 		Email:    email,
+		Password: password,
+		Logged:   false,
 	}
 
 	u, err := m.userResolver.CreateUserMutation(ctx, input)
 	if err != nil {
 		return nil, err
 	}
+	log.C(ctx).Info("Successfully created user with email %q", email)
 
 	gqlUser := &graphql.User{
 		ID:    u.ID,
 		Email: u.Email,
-		Name:  u.Username,
 	}
 	return gqlUser, nil
 }

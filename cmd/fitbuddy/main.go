@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/FitBuddy/internal/domain"
 	"github.com/FitBuddy/internal/domain/coach"
 	"github.com/FitBuddy/internal/domain/exercise"
@@ -16,16 +19,26 @@ import (
 	"github.com/FitBuddy/pkg/graphql"
 	"github.com/FitBuddy/pkg/log"
 	"github.com/FitBuddy/pkg/persistence"
-	"github.com/pkg/errors"
-	"net/http"
-	"time"
-
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
+	"github.com/rs/cors"
+	"net/http"
+	"os"
+	"time"
 )
 
 func main() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Current working directory:", cwd)
+
 	ctx := context.TODO()
 	databaseCfg := persistence.DatabaseConfig{
 		User:               "postgres",
@@ -44,6 +57,11 @@ func main() {
 		err := closeFunc()
 		exitOnError(err, "Error while closing the connection to the database")
 	}()
+
+	err = runMigrations(db, "file://sql")
+	if err != nil {
+		exitOnError(err, "Error while running migrations")
+	}
 
 	// Create repositories for each aggregate
 	userRepository := user.NewRepository(db)
@@ -104,9 +122,19 @@ func main() {
 
 	gqlAPIRouter.HandleFunc("", gqlServ.ServeHTTP)
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:63342"}, // Add your frontend origin
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	})
+
+	// Wrap your existing router or handler with the CORS handler
+	corsHandler := c.Handler(mainRouter)
+
 	// Serve the API on a specified port
 	ServerTimeout := time.Second * 30
-	runMainSrv, shutdownMainSrv := createServer(ctx, "localhost:8080", mainRouter, "main", ServerTimeout)
+	runMainSrv, shutdownMainSrv := createServer(ctx, "localhost:8080", corsHandler, "main", ServerTimeout)
 
 	go func() {
 		<-ctx.Done()
@@ -146,4 +174,24 @@ func createServer(ctx context.Context, address string, handler http.Handler, nam
 	}
 
 	return runFn, shutdownFn
+}
+
+func runMigrations(db *sql.DB, migrationPath string) error {
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	m, err := migrate.NewWithDatabaseInstance(
+		migrationPath,
+		"postgres",
+		driver,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = m.Up()
+	if err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+
+	fmt.Println("Migrations applied successfully")
+	return nil
 }

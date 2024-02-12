@@ -1,24 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const registrationForm = document.getElementById('registration-form');
+    const loginForm = document.getElementById('login-form');
 
-    registrationForm.addEventListener('submit', function (event) {
+    loginForm.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const email = document.getElementById('reg-email').value;
-        const password = document.getElementById('reg-password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
-
-        if (password !== confirmPassword) {
-            alert('Passwords do not match.');
-            return;
-        }
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
 
         // Replace 'your-graphql-endpoint' with your actual GraphQL endpoint
         const graphqlEndpoint = 'http://localhost:8080/graphql';
 
         const gqlMutation = `
             mutation {
-                createUser(email: "${email}", password: "${password}") {
+                loginUser(email: "${email}", password: "${password}") {
                     ID
                 }
             }
@@ -30,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: gqlMutation }),
+            body: JSON.stringify({query: gqlMutation}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -43,16 +37,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Handle the response data
                 // For example, you can check if the registration was successful
                 if (data.errors) {
-                    alert('Registration failed. Please try again.');
+                    alert('Login failed. Please try again.');
                 } else {
-                    alert('Registration successful!');
+                    alert('Login successful!');
                     // Redirect to the login page
-                    window.location.href = './login.html'; // Update with the actual path
+                    window.location.href = './dashboard.html'; // Update with the actual path
                 }
             })
             .catch(error => {
                 console.error('Error making GraphQL request:', error);
                 alert(`An error occurred. ${error.message}`);
             });
+
+        document.cookie = `email=${email}; SameSite=Lax; path=/;`;
     });
 });

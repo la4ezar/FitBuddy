@@ -5,20 +5,17 @@ import "github.com/google/uuid"
 // User represents a user in the fitness and wellness application.
 type User struct {
 	ID       string `json:"id"`
-	Username string `json:"username"`
 	Email    string `json:"email"`
+	Password string `json:"password"`
+	Logged   bool   `json:"logged"`
 }
 
 // NewUser creates a new User instance.
-func NewUser(username, email string) *User {
+func NewUser(email, password string) *User {
 	return &User{
-		ID:       generateUniqueID(),
-		Username: username,
+		ID:       uuid.New().String(),
 		Email:    email,
+		Password: password,
+		Logged:   false,
 	}
-}
-
-// generateUniqueID generates UUID
-func generateUniqueID() string {
-	return uuid.New().String()
 }

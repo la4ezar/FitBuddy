@@ -6,7 +6,9 @@ type Query {
 }
 
 type Mutation {
-    createUser(name: String!, email: String!): User
+    createUser(email: String!, password: String!): User
+    loginUser(email: String!, password: String!): User
+    logoutUser(email: String!): User
     createCoach(name: String!, specialty: String!): Coach
     createWorkoutLog(userID: ID!, exercise: String!, sets: Int!, reps: Int!, weight: Float!): WorkoutLog
     createNutritionLog(userID: ID!, description: String!, calories: Int!): NutritionLog

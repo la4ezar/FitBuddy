@@ -1,3 +1,11 @@
+function ctrl_c() {
+        "Trapped CTRL-C"
+        docker stop ${POSTGRES_CONTAINER}
+        docker rm ${POSTGRES_CONTAINER}
+}
+
+trap ctrl_c INT
+
 POSTGRES_CONTAINER="test-postgres"
 POSTGRES_VERSION="15"
 
@@ -33,3 +41,6 @@ if [ "${dbReady}" != true ] ; then
     echo '# COULD NOT ESTABLISH CONNECTION TO DATABASE #'
     exit 1
 fi
+
+echo 'Running main.go...'
+go run cmd/fitbuddy/main.go
