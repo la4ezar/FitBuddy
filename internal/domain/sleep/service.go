@@ -3,6 +3,7 @@ package sleep
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -24,10 +25,14 @@ func (s *Service) CreateLog(ctx context.Context, userEmail string, sleepTime, wa
 		return nil, errors.New("user email and valid sleep and wake times are required")
 	}
 
+	fmt.Println("Is wake time before sleep time: ", wakeTime.Before(sleepTime))
+	fmt.Printf("wake time: %v\n", wakeTime)
+	fmt.Printf("sleep time: %v\n", sleepTime)
 	if wakeTime.Before(sleepTime) {
-		sleepTime.AddDate(0, 0, -1)
+		sleepTime = sleepTime.AddDate(0, 0, -1)
 	}
-
+	fmt.Printf("wake time: %v\n", wakeTime)
+	fmt.Printf("sleep time: %v\n", sleepTime)
 	newLog := NewLog(userEmail, sleepTime, wakeTime, date)
 
 	if err := s.sleepRepository.CreateLog(ctx, newLog); err != nil {

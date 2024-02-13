@@ -65,9 +65,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const sleepTime = parseCustomTimeString(document.getElementById('sleep-time').value);
         const wakeTime = parseCustomTimeString(document.getElementById('wake-time').value);
 
+        let newDate = new Date(currentDate);
+        newDate.setHours(+newDate.getHours() + 2);
+
         const gqlMutation = `
             mutation {
-                createSleep(userEmail: "${emailCookie}", sleepTime: "${sleepTime}", wakeTime: "${wakeTime}", date: "${currentDate.toISOString()}") {
+                createSleep(userEmail: "${emailCookie}", sleepTime: "${sleepTime}", wakeTime: "${wakeTime}", date: "${newDate.toISOString()}") {
                     ID
                 }
             }
@@ -78,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: gqlMutation }),
+            body: JSON.stringify({query: gqlMutation}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -101,9 +104,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     function fetchSleeps(date) {
+        let newDate = new Date(date);
+        newDate.setHours(+newDate.getHours() + 2);
+
         const gqlQuery = `
             query {
-                getSleepByEmailAndDate(userEmail: "${emailCookie}", date: "${date.toISOString()}") {
+                getSleepByEmailAndDate(userEmail: "${emailCookie}", date: "${newDate.toISOString()}") {
                     SleepTime
                     WakeTime
                 }
@@ -115,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: gqlQuery }),
+            body: JSON.stringify({query: gqlQuery}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -138,10 +144,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const [hours, minutes] = customTimeString.split(':');
         console.log(hours, minutes)
         let tempCurrDay = new Date();
-        tempCurrDay.setHours(hours);
+        tempCurrDay.setHours(+hours + 2);
         tempCurrDay.setMinutes(minutes);
+        tempCurrDay.setSeconds(0);
 
-        console.log(tempCurrDay)
         return tempCurrDay.toISOString();
     }
 
