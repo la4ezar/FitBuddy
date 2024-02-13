@@ -19,18 +19,30 @@ func NewService(repository *Repository) *Service {
 }
 
 // CreateGoal creates a new fitness or wellness goal.
-func (s *Service) CreateGoal(ctx context.Context, userID, title, description string, startDate, endDate time.Time) (*Goal, error) {
-	if userID == "" || title == "" || description == "" {
+func (s *Service) CreateGoal(ctx context.Context, userEmail, name, description string, startDate, endDate time.Time) (*Goal, error) {
+	if userEmail == "" {
+		return nil, errors.New("user email should not be empty")
+	}
+
+	if name == "" || description == "" {
 		return nil, errors.New("user ID, title, and description are required")
 	}
 
-	newGoal := NewGoal(userID, title, description, startDate, endDate)
+	newGoal := NewGoal(name, description, startDate, endDate)
 
-	if err := s.repository.CreateGoal(ctx, newGoal); err != nil {
+	if err := s.repository.CreateGoal(ctx, userEmail, newGoal); err != nil {
 		return nil, err
 	}
 
 	return newGoal, nil
+}
+
+func (s *Service) GetGoals(ctx context.Context, userEmail string) ([]*Goal, error) {
+	if userEmail == "" {
+		return nil, errors.New("user email should not be empty")
+	}
+
+	return s.repository.GetGoalsByEmail(ctx, userEmail)
 }
 
 // GetGoalByID retrieves a fitness or wellness goal by ID.
@@ -52,7 +64,6 @@ func (s *Service) UpdateGoal(ctx context.Context, goalID, title, description str
 		return nil, errors.New("goal not found")
 	}
 
-	existingGoal.Title = title
 	existingGoal.Description = description
 	existingGoal.StartDate = startDate
 	existingGoal.EndDate = endDate

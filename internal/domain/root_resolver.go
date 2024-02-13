@@ -12,6 +12,7 @@ import (
 	"github.com/FitBuddy/internal/domain/user"
 	"github.com/FitBuddy/internal/domain/workout"
 	"github.com/FitBuddy/pkg/graphql"
+	"time"
 )
 
 var _ graphql.ResolverRoot = &RootResolver{}
@@ -44,6 +45,19 @@ func NewRootResolver(userResolver *user.Resolver, coachResolver *coach.Resolver,
 
 type mutationResolver struct {
 	*RootResolver
+}
+
+func (m mutationResolver) CreateGoal(ctx context.Context, name string, description string, startDate string, endDate string, email string) (*graphql.Goal, error) {
+	parsedStartDate, err := time.Parse(time.RFC3339, startDate)
+	if err != nil {
+		return nil, err
+	}
+	parsedEndDate, err := time.Parse(time.RFC3339, endDate)
+	if err != nil {
+		return nil, err
+	}
+
+	return m.goalResolver.CreateGoal(ctx, email, name, description, parsedStartDate, parsedEndDate)
 }
 
 func (m mutationResolver) BookCoach(ctx context.Context, email string, coachName string) (bool, error) {
@@ -109,6 +123,10 @@ func (q queryResolver) GetAllCoaches(ctx context.Context) ([]*graphql.Coach, err
 
 func (q queryResolver) GetAllPosts(ctx context.Context) ([]*graphql.Post, error) {
 	return q.forumResolver.GetAllPosts(ctx)
+}
+
+func (q queryResolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.Goal, error) {
+	return q.goalResolver.GetGoals(ctx, userEmail)
 }
 
 func (q queryResolver) GetUserByID(ctx context.Context, userID string) (*graphql.User, error) {

@@ -1,14 +1,18 @@
 type Query {
-    # Coach Queries
+    # Coach
     getAllCoaches: [Coach!]!
     isCoachBookedByUser(coachName: String!, userEmail: String!): Boolean!
     isCoachBooked(coachName: String!): Boolean!
+    # Goals
+    getGoals(email: String!): [Goal!]!
+    # Posts
+    getAllPosts: [Post!]!
+
 
     getUserByID(userID: ID!): User
     getCoachByID(coachID: ID!): Coach
     getWorkoutLogByID(workoutLogID: ID!): WorkoutLog
     getNutritionLogByID(nutritionLogID: ID!): NutritionLog
-    getAllPosts: [Post!]!
 
 }
 
@@ -22,34 +26,23 @@ type Mutation {
     # Coaches
     bookCoach(email: ID!, coachName: ID!): Boolean!
     unbookCoach(email: ID!, coachName: ID!): Boolean!
-
     createCoach(name: String!, specialty: String!): Coach
+    # Goals
+    createGoal(name: String!, description: String!, startDate: String!, endDate: String!, email: String!): Goal
+
     createWorkoutLog(userID: ID!, exercise: String!, sets: Int!, reps: Int!, weight: Float!): WorkoutLog
     createNutritionLog(userID: ID!, description: String!, calories: Int!): NutritionLog
 }
 
 type User {
     ID: ID!
-    Name: String!
     Email: String!
-    Profile: UserProfile
-    Goals: [FitnessGoal]
-    Workouts: [WorkoutLog]
-    NutritionLogs: [NutritionLog]
 }
 
 type UserProfile {
     Age: Int
     Height: Float
     Weight: Float
-}
-
-type FitnessGoal {
-    ID: ID!
-    UserID: ID!
-    Description: String!
-    TargetDate: String
-    Achieved: Boolean
 }
 
 type WorkoutLog {
@@ -83,4 +76,12 @@ type Coach {
     ImageUrl: String!
     Name: String!
     Specialty: String!
+}
+
+type Goal {
+    ID: ID!
+    Name: String!
+    Description: String!
+    StartDate: String!
+    EndDate: String!
 }

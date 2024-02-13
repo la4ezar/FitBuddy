@@ -87,10 +87,10 @@ CREATE TABLE goals
 (
     id          uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
     user_id     uuid         NOT NULL,
+    name        varchar(256) NOT NULL,
     description varchar(256) NOT NULL,
     start_date  timestamp    NOT NULL,
     end_date    timestamp    NOT NULL,
-    logged_at   timestamp    NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE
 );
 

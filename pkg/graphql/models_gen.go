@@ -9,12 +9,12 @@ type Coach struct {
 	Specialty string `json:"Specialty"`
 }
 
-type FitnessGoal struct {
-	ID          string  `json:"ID"`
-	UserID      string  `json:"UserID"`
-	Description string  `json:"Description"`
-	TargetDate  *string `json:"TargetDate,omitempty"`
-	Achieved    *bool   `json:"Achieved,omitempty"`
+type Goal struct {
+	ID          string `json:"ID"`
+	Name        string `json:"Name"`
+	Description string `json:"Description"`
+	StartDate   string `json:"StartDate"`
+	EndDate     string `json:"EndDate"`
 }
 
 type Mutation struct {
@@ -40,13 +40,8 @@ type Query struct {
 }
 
 type User struct {
-	ID            string          `json:"ID"`
-	Name          string          `json:"Name"`
-	Email         string          `json:"Email"`
-	Profile       *UserProfile    `json:"Profile,omitempty"`
-	Goals         []*FitnessGoal  `json:"Goals,omitempty"`
-	Workouts      []*WorkoutLog   `json:"Workouts,omitempty"`
-	NutritionLogs []*NutritionLog `json:"NutritionLogs,omitempty"`
+	ID    string `json:"ID"`
+	Email string `json:"Email"`
 }
 
 type UserProfile struct {
