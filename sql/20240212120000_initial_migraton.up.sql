@@ -99,17 +99,25 @@ CREATE TABLE coaches
     id        uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
     image_url varchar(256) NOT NULL,
     name      varchar(256) NOT NULL,
-    specialty varchar(256) NOT NULL,
-    is_booked bool         NOT NULL
+    specialty varchar(256) NOT NULL
 );
 
-INSERT INTO coaches (id, image_url, name, specialty, is_booked)
+INSERT INTO coaches (id, image_url, name, specialty)
 VALUES ('00000000-0000-0000-0000-000000000001',
         'https://media.istockphoto.com/id/856797530/photo/portrait-of-a-beautiful-woman-at-the-gym.jpg?s=612x612&w=0&k=20&c=0wMa1MYxt6HHamjd66d5__XGAKbJFDFQyu9LCloRsYU=',
-        'Maria Ilieva', 'Fitness Coach', false),
+        'Maria Ilieva', 'Fitness Coach'),
        ('00000000-0000-0000-0000-000000000002',
         'https://media.istockphoto.com/id/1072395722/photo/fitness-trainer-at-gym.jpg?s=612x612&w=0&k=20&c=3VBLCgbxG3bGNRp9Sc3tN_7G-g_DxXhGk9rhuZo-jkE=',
-        'Atanas Kolev', 'Nutrition Coach', false);
+        'Atanas Kolev', 'Nutrition Coach');
+
+CREATE TABLE bookings
+(
+    id       uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
+    user_id  uuid NOT NULL,
+    coach_id uuid NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE,
+    FOREIGN KEY (coach_id) REFERENCES coaches (id) on DELETE CASCADE
+);
 
 CREATE TABLE leaderboard
 (
@@ -119,11 +127,12 @@ CREATE TABLE leaderboard
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE
 );
 
-CREATE TABLE post
+CREATE TABLE posts
 (
-    id      uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
-    user_id uuid         NOT NULL,
-    title   varchar(256) NOT NULL,
-    content varchar(256) NOT NULL,
+    id         uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
+    user_id    uuid         NOT NULL,
+    title      varchar(256) NOT NULL,
+    content    varchar(256) NOT NULL,
+    created_at timestamp    NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE
 );

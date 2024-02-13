@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"github.com/FitBuddy/pkg/graphql"
+	"github.com/FitBuddy/pkg/log"
 )
 
 // Resolver handles GraphQL queries and mutations for the User aggregate.
@@ -16,9 +18,21 @@ func NewResolver(service *Service) *Resolver {
 	}
 }
 
-// CreateUserMutation is a GraphQL mutation to create a new user.
-func (r *Resolver) CreateUserMutation(ctx context.Context, input CreateUserInput) (*User, error) {
-	return r.service.CreateUser(ctx, input.Email, input.Password)
+// CreateUser is a GraphQL mutation to create a new user.
+func (r *Resolver) CreateUser(ctx context.Context, email, password string) (*graphql.User, error) {
+	log.C(ctx).Infof("Creating User with email %q...", email)
+
+	u, err := r.service.CreateUser(ctx, email, password)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Infof("Successfully created user with email %q", email)
+
+	gqlUser := &graphql.User{
+		ID:    u.ID,
+		Email: u.Email,
+	}
+	return gqlUser, nil
 }
 
 // GetUserQuery is a GraphQL query to retrieve a user by ID.
@@ -31,12 +45,34 @@ func (r *Resolver) UpdateUserMutation(ctx context.Context, input UpdateUserInput
 	return r.service.UpdateUser(ctx, input.Email, input.Password)
 }
 
-func (r *Resolver) LoginUserMutation(ctx context.Context, email, password string) (*User, error) {
-	return r.service.LoginUser(ctx, email, password)
+func (r *Resolver) LoginUser(ctx context.Context, email, password string) (*graphql.User, error) {
+	log.C(ctx).Infof("Logging user with email %q...", email)
+	u, err := r.service.LoginUser(ctx, email, password)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Infof("Successfully logged user with email %q...", email)
+
+	gqlUser := &graphql.User{
+		ID:    u.ID,
+		Email: u.Email,
+	}
+	return gqlUser, nil
 }
 
-func (r *Resolver) LogoutUserMutation(ctx context.Context, email string) (*User, error) {
-	return r.service.LogoutUser(ctx, email)
+func (r *Resolver) LogoutUser(ctx context.Context, email string) (*graphql.User, error) {
+	log.C(ctx).Infof("Logging out user with email %q...", email)
+	u, err := r.service.LogoutUser(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Infof("Successfully logging out user with email %q...", email)
+
+	gqlUser := &graphql.User{
+		ID:    u.ID,
+		Email: u.Email,
+	}
+	return gqlUser, nil
 }
 
 // DeleteUserMutation is a GraphQL mutation to delete a user by ID.

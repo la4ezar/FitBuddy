@@ -12,7 +12,6 @@ import (
 	"github.com/FitBuddy/internal/domain/user"
 	"github.com/FitBuddy/internal/domain/workout"
 	"github.com/FitBuddy/pkg/graphql"
-	"github.com/FitBuddy/pkg/log"
 )
 
 var _ graphql.ResolverRoot = &RootResolver{}
@@ -47,55 +46,29 @@ type mutationResolver struct {
 	*RootResolver
 }
 
-func (m mutationResolver) LoginUser(ctx context.Context, email string, password string) (*graphql.User, error) {
-	log.C(ctx).Infof("Logging user with email %q...", email)
-	u, err := m.userResolver.LoginUserMutation(ctx, email, password)
-	if err != nil {
-		return nil, err
-	}
-	log.C(ctx).Infof("Successfully logged user with email %q...", email)
+func (m mutationResolver) BookCoach(ctx context.Context, email string, coachName string) (bool, error) {
+	return m.coachResolver.BookCoach(ctx, email, coachName)
+}
 
-	gqlUser := &graphql.User{
-		ID:    u.ID,
-		Email: u.Email,
-	}
-	return gqlUser, nil
+func (m mutationResolver) UnbookCoach(ctx context.Context, email string, coachName string) (bool, error) {
+	return m.coachResolver.UnbookCoach(ctx, email, coachName)
+
+}
+
+func (m mutationResolver) CreatePost(ctx context.Context, title, content, email string) (*graphql.Post, error) {
+	return m.forumResolver.CreatePost(ctx, title, content, email)
+}
+
+func (m mutationResolver) LoginUser(ctx context.Context, email string, password string) (*graphql.User, error) {
+	return m.userResolver.LoginUser(ctx, email, password)
 }
 
 func (m mutationResolver) LogoutUser(ctx context.Context, email string) (*graphql.User, error) {
-	log.C(ctx).Infof("Logging out user with email %q...", email)
-	u, err := m.userResolver.LogoutUserMutation(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-	log.C(ctx).Infof("Successfully logging out user with email %q...", email)
-
-	gqlUser := &graphql.User{
-		ID:    u.ID,
-		Email: u.Email,
-	}
-	return gqlUser, nil
+	return m.userResolver.LogoutUser(ctx, email)
 }
 
 func (m mutationResolver) CreateUser(ctx context.Context, email string, password string) (*graphql.User, error) {
-	log.C(ctx).Infof("Creating User with email %q...", email)
-	input := user.CreateUserInput{
-		Email:    email,
-		Password: password,
-		Logged:   false,
-	}
-
-	u, err := m.userResolver.CreateUserMutation(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-	log.C(ctx).Info("Successfully created user with email %q", email)
-
-	gqlUser := &graphql.User{
-		ID:    u.ID,
-		Email: u.Email,
-	}
-	return gqlUser, nil
+	return m.userResolver.CreateUser(ctx, email, password)
 }
 
 func (m mutationResolver) CreateCoach(ctx context.Context, name string, specialty string) (*graphql.Coach, error) {
@@ -120,6 +93,22 @@ func (r *RootResolver) Mutation() graphql.MutationResolver {
 
 type queryResolver struct {
 	*RootResolver
+}
+
+func (q queryResolver) IsCoachBookedByUser(ctx context.Context, coachName, userEmail string) (bool, error) {
+	return q.coachResolver.IsCoachBookedByUser(ctx, coachName, userEmail)
+}
+
+func (q queryResolver) IsCoachBooked(ctx context.Context, coachName string) (bool, error) {
+	return q.coachResolver.IsCoachBooked(ctx, coachName)
+}
+
+func (q queryResolver) GetAllCoaches(ctx context.Context) ([]*graphql.Coach, error) {
+	return q.coachResolver.GetAllCoaches(ctx)
+}
+
+func (q queryResolver) GetAllPosts(ctx context.Context) ([]*graphql.Post, error) {
+	return q.forumResolver.GetAllPosts(ctx)
 }
 
 func (q queryResolver) GetUserByID(ctx context.Context, userID string) (*graphql.User, error) {

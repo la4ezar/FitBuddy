@@ -18,12 +18,12 @@ func NewService(repository *Repository) *Service {
 }
 
 // CreatePost creates a new forum post.
-func (s *Service) CreatePost(ctx context.Context, title, content, authorID string) (*Post, error) {
-	if title == "" || content == "" || authorID == "" {
-		return nil, errors.New("title, content, and author ID are required")
+func (s *Service) CreatePost(ctx context.Context, title, content, userEmail string) (*Post, error) {
+	if title == "" || content == "" || userEmail == "" {
+		return nil, errors.New("title, content, and user email are required")
 	}
 
-	newPost := NewPost(title, content, authorID)
+	newPost := NewPost(title, content, userEmail)
 
 	if err := s.repository.CreatePost(ctx, newPost); err != nil {
 		return nil, err
@@ -50,6 +50,11 @@ func (s *Service) CreateForum(ctx context.Context, name string) (*Forum, error) 
 // GetPostByID retrieves a forum post by ID.
 func (s *Service) GetPostByID(ctx context.Context, postID string) (*Post, error) {
 	return s.repository.GetPostByID(ctx, postID)
+}
+
+// GetAllPosts retrieves all forum posts.
+func (s *Service) GetAllPosts(ctx context.Context) ([]*Post, error) {
+	return s.repository.GetAllPosts(ctx)
 }
 
 // GetForumByID retrieves a forum by ID.

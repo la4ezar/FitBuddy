@@ -1,3 +1,4 @@
+#!/bin/bash
 function ctrl_c() {
         "Trapped CTRL-C"
         docker stop ${POSTGRES_CONTAINER}
@@ -42,5 +43,5 @@ if [ "${dbReady}" != true ] ; then
     exit 1
 fi
 
-echo 'Running main.go...'
-go run cmd/fitbuddy/main.go
+#echo 'Running migrator.go...'
+#go run cmd/migrator/main.go

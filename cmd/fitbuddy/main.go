@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -19,8 +18,6 @@ import (
 	"github.com/FitBuddy/pkg/graphql"
 	"github.com/FitBuddy/pkg/log"
 	"github.com/FitBuddy/pkg/persistence"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/gorilla/mux"
@@ -57,11 +54,6 @@ func main() {
 		err := closeFunc()
 		exitOnError(err, "Error while closing the connection to the database")
 	}()
-
-	err = runMigrations(db, "file://sql")
-	if err != nil {
-		exitOnError(err, "Error while running migrations")
-	}
 
 	// Create repositories for each aggregate
 	userRepository := user.NewRepository(db)
@@ -174,24 +166,4 @@ func createServer(ctx context.Context, address string, handler http.Handler, nam
 	}
 
 	return runFn, shutdownFn
-}
-
-func runMigrations(db *sql.DB, migrationPath string) error {
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
-	m, err := migrate.NewWithDatabaseInstance(
-		migrationPath,
-		"postgres",
-		driver,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = m.Up()
-	if err != nil && err != migrate.ErrNoChange {
-		return err
-	}
-
-	fmt.Println("Migrations applied successfully")
-	return nil
 }

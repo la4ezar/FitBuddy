@@ -10,17 +10,17 @@ type Post struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
-	AuthorID  string    `json:"authorId"`
+	UserEmail string    `json:"userEmail"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
 // NewPost creates a new Post instance.
-func NewPost(title, content, authorID string) *Post {
+func NewPost(title, content, userEmail string) *Post {
 	return &Post{
 		ID:        uuid.New().String(),
 		Title:     title,
 		Content:   content,
-		AuthorID:  authorID,
+		UserEmail: userEmail,
 		CreatedAt: time.Now(),
 	}
 }

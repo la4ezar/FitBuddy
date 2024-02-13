@@ -19,13 +19,14 @@ func NewRepository(db *sql.DB) *Repository {
 
 // CreatePost creates a new forum post in the database.
 func (r *Repository) CreatePost(ctx context.Context, post *Post) error {
-	query := `
-		INSERT INTO forum_posts (id, title, content, author_id, created_at)
-		VALUES ($1, $2, $3, $4, $5)
-	`
+	if _, err := r.db.ExecContext(ctx, `
+        INSERT INTO posts (id, user_id, title, content, created_at)
+        VALUES ($1, (SELECT id FROM users WHERE email = $2), $3, $4, $5)
+    `, post.ID, post.UserEmail, post.Title, post.Content, post.CreatedAt); err != nil {
+		return err
+	}
 
-	_, err := r.db.ExecContext(ctx, query, post.ID, post.Title, post.Content, post.AuthorID, post.CreatedAt)
-	return err
+	return nil
 }
 
 // CreateForum creates a new forum in the database.
@@ -50,7 +51,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, err
 	row := r.db.QueryRowContext(ctx, query, postID)
 
 	var post Post
-	err := row.Scan(&post.ID, &post.Title, &post.Content, &post.AuthorID, &post.CreatedAt)
+	err := row.Scan(&post.ID, &post.Title, &post.Content, &post.UserEmail, &post.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil // Post not found
 	} else if err != nil {
@@ -58,6 +59,35 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, err
 	}
 
 	return &post, nil
+}
+
+func (r *Repository) GetAllPosts(ctx context.Context) ([]*Post, error) {
+	rows, err := r.db.QueryContext(ctx, `
+        SELECT p.id, u.email, p.title, p.content, p.created_at
+        FROM posts p
+        JOIN users u ON p.user_id = u.id
+        ORDER BY p.created_at DESC
+    `)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []*Post
+
+	for rows.Next() {
+		var post Post
+		if err := rows.Scan(&post.ID, &post.UserEmail, &post.Title, &post.Content, &post.CreatedAt); err != nil {
+			return nil, err
+		}
+		posts = append(posts, &post)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
 }
 
 // GetForumByID retrieves a forum from the database by ID.

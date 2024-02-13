@@ -59,9 +59,36 @@ button:hover {
     color: white; /* Text color matches the login form */
 }
 
+.posts-list {
+    max-width: 600px;
+    margin: auto;
+}
+
 .post {
     border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.post:hover {
+    background-color: #f8f8f8;
+}
+
+.post h2 {
+    color: #333;
+    font-size: 1.2em;
+    margin-bottom: 8px;
+}
+
+.post p {
+    color: #555;
+    font-size: 1em;
+    margin-bottom: 8px;
+}
+
+.post .user-info {
+    color: #777;
+    font-size: 0.9em;
 }

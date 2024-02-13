@@ -1,44 +1,245 @@
 document.addEventListener('DOMContentLoaded', function () {
     const coachesTableBody = document.querySelector('.coaches-container tbody');
 
-    // Example data (replace this with actual coach data)
-    const coachesData = [
-        { image: '../images/coach1.png', name: 'Maria Ilieva', specialty: 'Fitness Training' },
-        { image: '../images/coach2.png', name: 'Atanas Kolev', specialty: 'Nutrition' },
-        // Add more coaches as needed
-    ];
+    const graphqlEndpoint = 'http://localhost:8080/graphql';
 
-    // Loop through coachesData and create table rows
-    coachesData.forEach(coach => {
-        const row = document.createElement('tr');
+    function fetchCoaches() {
+        const gqlQuery = `
+            query {
+                getAllCoaches {
+                    ID
+                    ImageUrl
+                    Name
+                    Specialty
+                }
+            }
+        `;
 
-        // Add columns
-        const imageCell = document.createElement('td');
-        const image = document.createElement('img');
-        image.src = coach.image; // Assuming coach.image is the image path
-        image.alt = 'Coach Image'; // Provide alt text for accessibility
-        image.style.maxWidth = '200px'; // Set the maximum width
-        image.style.maxHeight = '200px'; // Set the maximum height
-        imageCell.appendChild(image);
-        row.appendChild(imageCell);
+        return fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: gqlQuery }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => data.data.getAllCoaches)
+            .catch(error => {
+                console.error('Error fetching coaches:', error);
+                return [];
+            });
+    }
 
-        const nameCell = document.createElement('td');
-        nameCell.textContent = coach.name;
-        row.appendChild(nameCell);
+    function isBookedByCurrentUser(coach, email) {
+        const isBookedQuery = `
+            query {
+                isCoachBookedByUser(coachName: "${coach.Name}", userEmail: "${email}")
+            }
+        `;
 
-        const specialtyCell = document.createElement('td');
-        specialtyCell.textContent = coach.specialty;
-        row.appendChild(specialtyCell);
+        return fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: isBookedQuery }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => data.data.isCoachBookedByUser)
+            .catch(error => {
+                console.error('Error checking if coach is booked:', error);
+                return false;
+            });
+    }
 
-        const bookNowCell = document.createElement('td');
-        const bookNowButton = document.createElement('button');
-        bookNowButton.textContent = 'Book Now';
-        // Add any event listeners or functionality for the "Book Now" button here
-        bookNowCell.appendChild(bookNowButton);
+    function isBookedByAnyUser(coach) {
+        const isBookedQuery = `
+            query {
+                isCoachBooked(coachName: "${coach.Name}")
+            }
+        `;
 
-        row.appendChild(bookNowCell);
+        return fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: isBookedQuery }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => data.data.isCoachBooked)
+            .catch(error => {
+                console.error('Error checking if coach is booked:', error);
+                return false;
+            });
+    }
 
-        // Add the row to the table
-        coachesTableBody.appendChild(row);
-    });
+    function displayCoaches(coaches) {
+        coachesTableBody.innerHTML = '';
+
+        coaches.forEach(coach => {
+            const row = document.createElement('tr');
+
+            const imageCell = document.createElement('td');
+            const image = document.createElement('img');
+
+            image.src = coach.ImageUrl.startsWith('http') ? coach.ImageUrl : `http://${coach.ImageUrl}`;
+            image.alt = 'Coach Image';
+            image.style.maxWidth = '200px';
+            image.style.maxHeight = '200px';
+
+            imageCell.appendChild(image);
+            row.appendChild(imageCell);
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = coach.Name;
+            row.appendChild(nameCell);
+
+            const specialtyCell = document.createElement('td');
+            specialtyCell.textContent = coach.Specialty;
+            row.appendChild(specialtyCell);
+
+            const bookNowCell = document.createElement('td');
+            const bookNowButton = document.createElement('button');
+            bookNowButton.textContent = 'Book Now';
+
+            const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+
+            isBookedByCurrentUser(coach, emailCookie)
+                .then(isBooked => {
+                    if (isBooked) {
+                        const unbookButton = document.createElement('button');
+                        unbookButton.textContent = 'Unbook Now';
+                        unbookButton.addEventListener('click', () => unbookCoach(coach.Name, emailCookie));
+                        bookNowCell.appendChild(unbookButton);
+                    } else {
+                        isBookedByAnyUser(coach)
+                            .then(isBooked => {
+                                if (isBooked) {
+                                    const bookedText = document.createElement('span');
+                                    bookedText.textContent = 'Booked by another user';
+                                    bookNowCell.appendChild(bookedText);
+                                } else {
+                                    const bookNowButton = document.createElement('button');
+                                    bookNowButton.textContent = 'Book Now';
+                                    bookNowButton.addEventListener('click', () => bookCoach(coach.Name, emailCookie));
+                                    bookNowCell.appendChild(bookNowButton);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error checking if coach is booked:', error);
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking if coach is booked:', error);
+                    bookNowCell.appendChild(bookNowButton);
+                });
+
+            row.appendChild(bookNowCell);
+
+            coachesTableBody.appendChild(row);
+        });
+    }
+
+    function bookCoach(coachName, email) {
+        const bookCoachMutation = `
+            mutation {
+                bookCoach(email: "${email}", coachName: "${coachName}")
+            }
+        `;
+
+        fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: bookCoachMutation }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.data.bookCoach) {
+                    fetchCoaches()
+                        .then(coaches => {
+                            displayCoaches(coaches);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching and displaying coaches:', error);
+                        });
+                } else {
+                    alert('Failed to book the coach. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error making GraphQL request:', error);
+                alert(`An error occurred. ${error.message}`);
+            });
+    }
+
+    function unbookCoach(coachName, email) {
+        const unbookCoachMutation = `
+            mutation {
+                unbookCoach(email: "${email}", coachName: "${coachName}")
+            }
+        `;
+
+        fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: unbookCoachMutation }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.data.unbookCoach) {
+                    fetchCoaches()
+                        .then(coaches => {
+                            displayCoaches(coaches);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching and displaying coaches:', error);
+                        });
+                } else {
+                    alert('Failed to unbook the coach. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error making GraphQL request:', error);
+                alert(`An error occurred. ${error.message}`);
+            });
+    }
+
+    fetchCoaches()
+        .then(coaches => {
+            displayCoaches(coaches);
+        })
+        .catch(error => {
+            console.error('Error fetching and displaying coaches:', error);
+        });
 });

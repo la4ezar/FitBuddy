@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Replace 'your-graphql-endpoint' with your actual GraphQL endpoint
         const graphqlEndpoint = 'http://localhost:8080/graphql';
 
         const gqlMutation = `
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         `;
 
-        // Make the GraphQL request
         fetch(graphqlEndpoint, {
             method: 'POST',
             headers: {
@@ -39,19 +37,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                console.log('GraphQL Response:', data);
-                // Handle the response data
-                // For example, you can check if the registration was successful
                 if (data.errors) {
                     alert('Registration failed. Please try again.');
                 } else {
-                    alert('Registration successful!');
-                    // Redirect to the login page
-                    window.location.href = './login.html'; // Update with the actual path
+                    window.location.href = './login.html';
                 }
             })
             .catch(error => {
-                console.error('Error making GraphQL request:', error);
                 alert(`An error occurred. ${error.message}`);
             });
     });

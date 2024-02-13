@@ -2,6 +2,8 @@ package forum
 
 import (
 	"context"
+	"github.com/FitBuddy/pkg/graphql"
+	"github.com/FitBuddy/pkg/log"
 )
 
 // Resolver handles GraphQL queries and mutations for the Forum aggregate.
@@ -16,9 +18,24 @@ func NewResolver(forumService *Service) *Resolver {
 	}
 }
 
-// CreatePostMutation is a GraphQL mutation to create a new forum post.
-func (r *Resolver) CreatePostMutation(ctx context.Context, input Post) (*Post, error) {
-	return r.forumService.CreatePost(ctx, input.Title, input.Content, input.AuthorID)
+// CreatePost is a GraphQL mutation to create a new forum post.
+func (r *Resolver) CreatePost(ctx context.Context, title, content, email string) (*graphql.Post, error) {
+	log.C(ctx).Infof("Creating post with title %q, content %q by user %q...", title, content, email)
+	post, err := r.forumService.CreatePost(ctx, title, content, email)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Infof("Successfully created post with title %q, content %q by user %q", title, content, email)
+
+	gqlPost := &graphql.Post{
+		ID:        post.ID,
+		UserEmail: post.UserEmail,
+		Title:     post.Title,
+		Content:   post.Content,
+		CreatedAt: post.CreatedAt.Format("2006-01-02 15:04:05"),
+	}
+
+	return gqlPost, nil
 }
 
 // CreateForumMutation is a GraphQL mutation to create a new forum.
@@ -26,9 +43,27 @@ func (r *Resolver) CreateForumMutation(ctx context.Context, input Forum) (*Forum
 	return r.forumService.CreateForum(ctx, input.Name)
 }
 
-// GetPostQuery is a GraphQL query to retrieve a forum post by ID.
-func (r *Resolver) GetPostQuery(ctx context.Context, postID string) (*Post, error) {
-	return r.forumService.GetPostByID(ctx, postID)
+// GetAllPosts is a GraphQL query to retrieve all forum posts.
+func (r *Resolver) GetAllPosts(ctx context.Context) ([]*graphql.Post, error) {
+	log.C(ctx).Info("Getting all posts...")
+	posts, err := r.forumService.GetAllPosts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Info("Successfully got all posts")
+
+	gqlPosts := make([]*graphql.Post, 0, len(posts))
+	for _, p := range posts {
+		gqlPosts = append(gqlPosts, &graphql.Post{
+			ID:        p.ID,
+			UserEmail: p.UserEmail,
+			Title:     p.Title,
+			Content:   p.Content,
+			CreatedAt: p.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	return gqlPosts, nil
 }
 
 // GetForumQuery is a GraphQL query to retrieve a forum by ID.

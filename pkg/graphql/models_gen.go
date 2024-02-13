@@ -4,6 +4,7 @@ package graphql
 
 type Coach struct {
 	ID        string `json:"ID"`
+	ImageURL  string `json:"ImageUrl"`
 	Name      string `json:"Name"`
 	Specialty string `json:"Specialty"`
 }
@@ -25,6 +26,14 @@ type NutritionLog struct {
 	Description string `json:"Description"`
 	Calories    int    `json:"Calories"`
 	Date        string `json:"Date"`
+}
+
+type Post struct {
+	ID        string `json:"ID"`
+	UserEmail string `json:"UserEmail"`
+	Title     string `json:"Title"`
+	Content   string `json:"Content"`
+	CreatedAt string `json:"CreatedAt"`
 }
 
 type Query struct {

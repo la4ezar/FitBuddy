@@ -1,8 +1,5 @@
 const email = getCookie();
-
-if (email) {
-    document.getElementById('email').textContent = email;
-} else {
+if (!email) {
     document.title = '401 Unauthorized';
     document.body.innerHTML = '<h1>401 Unauthorized</h1><p>You are not authorized to access this page.</p>';
 }
