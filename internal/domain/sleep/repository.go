@@ -3,6 +3,7 @@ package sleep
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 // Repository is a repository for managing sleep log data.
@@ -18,23 +19,45 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 // CreateLog creates a new sleep log entry in the database.
-func (r *Repository) CreateLog(ctx context.Context, sleepLog *Log) error {
-	query := `
-		INSERT INTO sleep_logs (id, user_id, duration, sleep_time, wake_time)
-		VALUES ($1, $2, $3, $4, $5)
-	`
+func (r *Repository) CreateLog(ctx context.Context, sleep *Log) error {
+	startOfDay := time.Date(sleep.LoggedAt.Year(), sleep.LoggedAt.Month(), sleep.LoggedAt.Day(), 0, 0, 0, 0, sleep.LoggedAt.Location())
 
-	_, err := r.db.ExecContext(
-		ctx,
-		query,
-		sleepLog.ID,
-		sleepLog.UserID,
-		sleepLog.Duration,
-		sleepLog.SleepTime,
-		sleepLog.WakeTime,
-	)
+	_, err := r.db.ExecContext(ctx, "INSERT INTO sleep (id, user_id, sleep_time, wake_time, logged_at) VALUES ($1, (SELECT id FROM users WHERE email = $2), $3, $4, $5)",
+		sleep.ID, sleep.UserEmail, sleep.SleepTime.Format(time.RFC3339), sleep.WakeTime.Format(time.RFC3339), startOfDay.Format(time.RFC3339))
+	if err != nil {
+		return err
+	}
 
-	return err
+	return nil
+}
+
+// GetSleepByEmailAndDate gets sleep by email and date
+func (r *Repository) GetSleepByEmailAndDate(ctx context.Context, userEmail string, date time.Time) ([]*Log, error) {
+	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+
+	rows, err := r.db.QueryContext(ctx, "SELECT id, sleep_time, wake_time, logged_at FROM sleep WHERE user_id = (SELECT id FROM users WHERE email = $1) AND logged_at = $2::timestamp",
+		userEmail, startOfDay.Format(time.RFC3339))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var sleeps []*Log
+
+	for rows.Next() {
+		var sleep Log
+		err := rows.Scan(&sleep.ID, &sleep.SleepTime, &sleep.WakeTime, &sleep.LoggedAt)
+		if err != nil {
+			return nil, err
+		}
+		sleeps = append(sleeps, &sleep)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return sleeps, nil
 }
 
 // GetLogByID retrieves a sleep log entry from the database by ID.
@@ -50,8 +73,6 @@ func (r *Repository) GetLogByID(ctx context.Context, sleepLogID string) (*Log, e
 	var sleepLogItem Log
 	err := row.Scan(
 		&sleepLogItem.ID,
-		&sleepLogItem.UserID,
-		&sleepLogItem.Duration,
 		&sleepLogItem.SleepTime,
 		&sleepLogItem.WakeTime,
 	)
@@ -76,7 +97,6 @@ func (r *Repository) UpdateLog(ctx context.Context, sleepLog *Log) error {
 		ctx,
 		query,
 		sleepLog.ID,
-		sleepLog.Duration,
 		sleepLog.SleepTime,
 		sleepLog.WakeTime,
 	)

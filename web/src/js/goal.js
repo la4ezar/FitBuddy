@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const name = document.getElementById('name').value;
         const description = document.getElementById('description').value;
         const startDate = parseCustomDateString(document.getElementById('start-date').value);
-        console.log(startDate)
         const endDate = parseCustomDateString(document.getElementById('end-date').value);
 
 

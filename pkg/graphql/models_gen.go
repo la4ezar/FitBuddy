@@ -39,6 +39,12 @@ type Post struct {
 type Query struct {
 }
 
+type Sleep struct {
+	ID        string `json:"ID"`
+	SleepTime string `json:"SleepTime"`
+	WakeTime  string `json:"WakeTime"`
+}
+
 type User struct {
 	ID    string `json:"ID"`
 	Email string `json:"Email"`

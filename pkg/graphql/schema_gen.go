@@ -67,6 +67,7 @@ type ComplexityRoot struct {
 		CreateGoal         func(childComplexity int, name string, description string, startDate string, endDate string, email string) int
 		CreateNutritionLog func(childComplexity int, userID string, description string, calories int) int
 		CreatePost         func(childComplexity int, title string, content string, email string) int
+		CreateSleep        func(childComplexity int, userEmail string, sleepTime string, wakeTime string, date string) int
 		CreateUser         func(childComplexity int, email string, password string) int
 		CreateWorkoutLog   func(childComplexity int, userID string, exercise string, sets int, reps int, weight float64) int
 		LoginUser          func(childComplexity int, email string, password string) int
@@ -91,15 +92,22 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetAllCoaches       func(childComplexity int) int
-		GetAllPosts         func(childComplexity int) int
-		GetCoachByID        func(childComplexity int, coachID string) int
-		GetGoals            func(childComplexity int, email string) int
-		GetNutritionLogByID func(childComplexity int, nutritionLogID string) int
-		GetUserByID         func(childComplexity int, userID string) int
-		GetWorkoutLogByID   func(childComplexity int, workoutLogID string) int
-		IsCoachBooked       func(childComplexity int, coachName string) int
-		IsCoachBookedByUser func(childComplexity int, coachName string, userEmail string) int
+		GetAllCoaches          func(childComplexity int) int
+		GetAllPosts            func(childComplexity int) int
+		GetCoachByID           func(childComplexity int, coachID string) int
+		GetGoals               func(childComplexity int, email string) int
+		GetNutritionLogByID    func(childComplexity int, nutritionLogID string) int
+		GetSleepByEmailAndDate func(childComplexity int, userEmail string, date string) int
+		GetUserByID            func(childComplexity int, userID string) int
+		GetWorkoutLogByID      func(childComplexity int, workoutLogID string) int
+		IsCoachBooked          func(childComplexity int, coachName string) int
+		IsCoachBookedByUser    func(childComplexity int, coachName string, userEmail string) int
+	}
+
+	Sleep struct {
+		ID        func(childComplexity int) int
+		SleepTime func(childComplexity int) int
+		WakeTime  func(childComplexity int) int
 	}
 
 	User struct {
@@ -133,6 +141,7 @@ type MutationResolver interface {
 	UnbookCoach(ctx context.Context, email string, coachName string) (bool, error)
 	CreateCoach(ctx context.Context, name string, specialty string) (*Coach, error)
 	CreateGoal(ctx context.Context, name string, description string, startDate string, endDate string, email string) (*Goal, error)
+	CreateSleep(ctx context.Context, userEmail string, sleepTime string, wakeTime string, date string) (*Sleep, error)
 	CreateWorkoutLog(ctx context.Context, userID string, exercise string, sets int, reps int, weight float64) (*WorkoutLog, error)
 	CreateNutritionLog(ctx context.Context, userID string, description string, calories int) (*NutritionLog, error)
 }
@@ -142,6 +151,7 @@ type QueryResolver interface {
 	IsCoachBooked(ctx context.Context, coachName string) (bool, error)
 	GetGoals(ctx context.Context, email string) ([]*Goal, error)
 	GetAllPosts(ctx context.Context) ([]*Post, error)
+	GetSleepByEmailAndDate(ctx context.Context, userEmail string, date string) ([]*Sleep, error)
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 	GetCoachByID(ctx context.Context, coachID string) (*Coach, error)
 	GetWorkoutLogByID(ctx context.Context, workoutLogID string) (*WorkoutLog, error)
@@ -289,6 +299,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreatePost(childComplexity, args["title"].(string), args["content"].(string), args["email"].(string)), true
+
+	case "Mutation.createSleep":
+		if e.complexity.Mutation.CreateSleep == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSleep_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSleep(childComplexity, args["userEmail"].(string), args["sleepTime"].(string), args["wakeTime"].(string), args["date"].(string)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -470,6 +492,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetNutritionLogByID(childComplexity, args["nutritionLogID"].(string)), true
 
+	case "Query.getSleepByEmailAndDate":
+		if e.complexity.Query.GetSleepByEmailAndDate == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getSleepByEmailAndDate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetSleepByEmailAndDate(childComplexity, args["userEmail"].(string), args["date"].(string)), true
+
 	case "Query.getUserByID":
 		if e.complexity.Query.GetUserByID == nil {
 			break
@@ -517,6 +551,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.IsCoachBookedByUser(childComplexity, args["coachName"].(string), args["userEmail"].(string)), true
+
+	case "Sleep.ID":
+		if e.complexity.Sleep.ID == nil {
+			break
+		}
+
+		return e.complexity.Sleep.ID(childComplexity), true
+
+	case "Sleep.SleepTime":
+		if e.complexity.Sleep.SleepTime == nil {
+			break
+		}
+
+		return e.complexity.Sleep.SleepTime(childComplexity), true
+
+	case "Sleep.WakeTime":
+		if e.complexity.Sleep.WakeTime == nil {
+			break
+		}
+
+		return e.complexity.Sleep.WakeTime(childComplexity), true
 
 	case "User.Email":
 		if e.complexity.User.Email == nil {
@@ -890,6 +945,48 @@ func (ec *executionContext) field_Mutation_createPost_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createSleep_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userEmail"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userEmail"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userEmail"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["sleepTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sleepTime"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sleepTime"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["wakeTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wakeTime"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["wakeTime"] = arg2
+	var arg3 string
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg3, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1085,6 +1182,30 @@ func (ec *executionContext) field_Query_getNutritionLogByID_args(ctx context.Con
 		}
 	}
 	args["nutritionLogID"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getSleepByEmailAndDate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userEmail"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userEmail"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userEmail"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg1
 	return args, nil
 }
 
@@ -2065,6 +2186,66 @@ func (ec *executionContext) fieldContext_Mutation_createGoal(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createSleep(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createSleep(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateSleep(rctx, fc.Args["userEmail"].(string), fc.Args["sleepTime"].(string), fc.Args["wakeTime"].(string), fc.Args["date"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Sleep)
+	fc.Result = res
+	return ec.marshalOSleep2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐSleep(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createSleep(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Sleep_ID(ctx, field)
+			case "SleepTime":
+				return ec.fieldContext_Sleep_SleepTime(ctx, field)
+			case "WakeTime":
+				return ec.fieldContext_Sleep_WakeTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Sleep", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createSleep_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createWorkoutLog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createWorkoutLog(ctx, field)
 	if err != nil {
@@ -2924,6 +3105,69 @@ func (ec *executionContext) fieldContext_Query_getAllPosts(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getSleepByEmailAndDate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getSleepByEmailAndDate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetSleepByEmailAndDate(rctx, fc.Args["userEmail"].(string), fc.Args["date"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Sleep)
+	fc.Result = res
+	return ec.marshalNSleep2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐSleepᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getSleepByEmailAndDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Sleep_ID(ctx, field)
+			case "SleepTime":
+				return ec.fieldContext_Sleep_SleepTime(ctx, field)
+			case "WakeTime":
+				return ec.fieldContext_Sleep_WakeTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Sleep", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getSleepByEmailAndDate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getUserByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getUserByID(ctx, field)
 	if err != nil {
@@ -3300,6 +3544,138 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Sleep_ID(ctx context.Context, field graphql.CollectedField, obj *Sleep) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Sleep_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Sleep_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Sleep",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Sleep_SleepTime(ctx context.Context, field graphql.CollectedField, obj *Sleep) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Sleep_SleepTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SleepTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Sleep_SleepTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Sleep",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Sleep_WakeTime(ctx context.Context, field graphql.CollectedField, obj *Sleep) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Sleep_WakeTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WakeTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Sleep_WakeTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Sleep",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5775,6 +6151,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createGoal(ctx, field)
 			})
+		case "createSleep":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createSleep(ctx, field)
+			})
 		case "createWorkoutLog":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createWorkoutLog(ctx, field)
@@ -6053,6 +6433,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getSleepByEmailAndDate":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSleepByEmailAndDate(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getUserByID":
 			field := field
 
@@ -6137,6 +6539,55 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var sleepImplementors = []string{"Sleep"}
+
+func (ec *executionContext) _Sleep(ctx context.Context, sel ast.SelectionSet, obj *Sleep) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sleepImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Sleep")
+		case "ID":
+			out.Values[i] = ec._Sleep_ID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "SleepTime":
+			out.Values[i] = ec._Sleep_SleepTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "WakeTime":
+			out.Values[i] = ec._Sleep_WakeTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6861,6 +7312,60 @@ func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgrap
 	return ec._Post(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNSleep2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐSleepᚄ(ctx context.Context, sel ast.SelectionSet, v []*Sleep) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSleep2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐSleep(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSleep2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐSleep(ctx context.Context, sel ast.SelectionSet, v *Sleep) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Sleep(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7213,6 +7718,13 @@ func (ec *executionContext) marshalOPost2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgrap
 		return graphql.Null
 	}
 	return ec._Post(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSleep2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐSleep(ctx context.Context, sel ast.SelectionSet, v *Sleep) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Sleep(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

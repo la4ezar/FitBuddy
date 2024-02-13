@@ -78,3 +78,17 @@ button:hover {
     margin: auto;
     color: white; /* Text color matches the login form */
 }
+
+.sleep-list {
+    display: flow;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin: 20px;
+}
+
+.sleep-item {
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

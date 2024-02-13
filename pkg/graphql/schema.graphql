@@ -7,7 +7,8 @@ type Query {
     getGoals(email: String!): [Goal!]!
     # Posts
     getAllPosts: [Post!]!
-
+    # Sleep
+    getSleepByEmailAndDate(userEmail: String!, date: String!): [Sleep!]!
 
     getUserByID(userID: ID!): User
     getCoachByID(coachID: ID!): Coach
@@ -29,6 +30,8 @@ type Mutation {
     createCoach(name: String!, specialty: String!): Coach
     # Goals
     createGoal(name: String!, description: String!, startDate: String!, endDate: String!, email: String!): Goal
+    # Sleep
+    createSleep(userEmail: String!, sleepTime: String!, wakeTime: String!, date: String!): Sleep
 
     createWorkoutLog(userID: ID!, exercise: String!, sets: Int!, reps: Int!, weight: Float!): WorkoutLog
     createNutritionLog(userID: ID!, description: String!, calories: Int!): NutritionLog
@@ -84,4 +87,10 @@ type Goal {
     Description: String!
     StartDate: String!
     EndDate: String!
+}
+
+type Sleep {
+    ID: ID!
+    SleepTime: String!
+    WakeTime: String!
 }

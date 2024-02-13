@@ -8,19 +8,19 @@ import (
 // Log represents a sleep log entry in the application.
 type Log struct {
 	ID        string    `json:"id"`
-	UserID    string    `json:"userId"`
-	Duration  int       `json:"duration"`
+	UserEmail string    `json:"userEmail"`
 	SleepTime time.Time `json:"sleepTime"`
 	WakeTime  time.Time `json:"wakeTime"`
+	LoggedAt  time.Time `json:"loggedAt"`
 }
 
 // NewLog creates a new SleepLog instance.
-func NewLog(userID string, duration int, sleepTime, wakeTime time.Time) *Log {
+func NewLog(userEmail string, sleepTime, wakeTime, loggedAt time.Time) *Log {
 	return &Log{
 		ID:        uuid.New().String(),
-		UserID:    userID,
-		Duration:  duration,
+		UserEmail: userEmail,
 		SleepTime: sleepTime,
 		WakeTime:  wakeTime,
+		LoggedAt:  loggedAt,
 	}
 }

@@ -19,18 +19,36 @@ func NewService(sleepRepository *Repository) *Service {
 }
 
 // CreateLog creates a new sleep log entry.
-func (s *Service) CreateLog(ctx context.Context, userID string, duration int, sleepTime, wakeTime time.Time) (*Log, error) {
-	if userID == "" || duration <= 0 || wakeTime.Before(sleepTime) {
-		return nil, errors.New("user ID, positive duration, and valid sleep and wake times are required")
+func (s *Service) CreateLog(ctx context.Context, userEmail string, sleepTime, wakeTime, date time.Time) (*Log, error) {
+	if userEmail == "" {
+		return nil, errors.New("user email and valid sleep and wake times are required")
 	}
 
-	newLog := NewLog(userID, duration, sleepTime, wakeTime)
+	if wakeTime.Before(sleepTime) {
+		sleepTime.AddDate(0, 0, -1)
+	}
+
+	newLog := NewLog(userEmail, sleepTime, wakeTime, date)
 
 	if err := s.sleepRepository.CreateLog(ctx, newLog); err != nil {
 		return nil, err
 	}
 
 	return newLog, nil
+}
+
+// GetSleepByEmailAndDate gets sleep for a given date and user by email
+func (s *Service) GetSleepByEmailAndDate(ctx context.Context, userEmail string, date time.Time) ([]*Log, error) {
+	if userEmail == "" {
+		return nil, errors.New("user email is required")
+	}
+
+	sleep, err := s.sleepRepository.GetSleepByEmailAndDate(ctx, userEmail, date)
+	if err != nil {
+		return nil, err
+	}
+
+	return sleep, nil
 }
 
 // GetLogByID retrieves a sleep log entry by ID.
@@ -52,7 +70,6 @@ func (s *Service) UpdateLog(ctx context.Context, sleepLogID string, duration int
 		return nil, errors.New("sleep log entry not found")
 	}
 
-	existingLog.Duration = duration
 	existingLog.SleepTime = sleepTime
 	existingLog.WakeTime = wakeTime
 

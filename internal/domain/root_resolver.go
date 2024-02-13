@@ -60,6 +60,23 @@ func (m mutationResolver) CreateGoal(ctx context.Context, name string, descripti
 	return m.goalResolver.CreateGoal(ctx, email, name, description, parsedStartDate, parsedEndDate)
 }
 
+func (m mutationResolver) CreateSleep(ctx context.Context, userEmail, sleepTime, wakeTime, date string) (*graphql.Sleep, error) {
+	parsedSleepTime, err := time.Parse(time.RFC3339, sleepTime)
+	if err != nil {
+		return nil, err
+	}
+	parsedWakeTime, err := time.Parse(time.RFC3339, wakeTime)
+	if err != nil {
+		return nil, err
+	}
+	parsedDateTime, err := time.Parse(time.RFC3339, date)
+	if err != nil {
+		return nil, err
+	}
+
+	return m.sleepResolver.CreateSleep(ctx, userEmail, parsedSleepTime, parsedWakeTime, parsedDateTime)
+}
+
 func (m mutationResolver) BookCoach(ctx context.Context, email string, coachName string) (bool, error) {
 	return m.coachResolver.BookCoach(ctx, email, coachName)
 }
@@ -107,6 +124,15 @@ func (r *RootResolver) Mutation() graphql.MutationResolver {
 
 type queryResolver struct {
 	*RootResolver
+}
+
+func (q queryResolver) GetSleepByEmailAndDate(ctx context.Context, userEmail string, date string) ([]*graphql.Sleep, error) {
+	parsedDateTime, err := time.Parse(time.RFC3339, date)
+	if err != nil {
+		return nil, err
+	}
+
+	return q.sleepResolver.GetSleepByEmailAndDate(ctx, userEmail, parsedDateTime)
 }
 
 func (q queryResolver) IsCoachBookedByUser(ctx context.Context, coachName, userEmail string) (bool, error) {
