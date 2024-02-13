@@ -107,9 +107,8 @@ func (m mutationResolver) CreateCoach(ctx context.Context, name string, specialt
 	panic("implement me")
 }
 
-func (m mutationResolver) CreateWorkoutLog(ctx context.Context, userID string, exercise string, sets int, reps int, weight float64) (*graphql.WorkoutLog, error) {
-	//TODO implement me
-	panic("implement me")
+func (m mutationResolver) CreateWorkout(ctx context.Context, email, exercise, date string, sets, reps int, weight float64) (*graphql.Workout, error) {
+	return m.workoutResolver.CreateWorkout(ctx, email, exercise, date, sets, reps, weight)
 }
 
 func (m mutationResolver) CreateNutritionLog(ctx context.Context, userID string, description string, calories int) (*graphql.NutritionLog, error) {
@@ -151,6 +150,14 @@ func (q queryResolver) GetAllPosts(ctx context.Context) ([]*graphql.Post, error)
 	return q.forumResolver.GetAllPosts(ctx)
 }
 
+func (q queryResolver) GetAllWorkoutsByEmailAndDate(ctx context.Context, email, date string) ([]*graphql.Workout, error) {
+	return q.workoutResolver.GetAllWorkouts(ctx, email, date)
+}
+
+func (q queryResolver) GetAllExercises(ctx context.Context) ([]*graphql.Exercise, error) {
+	return q.exerciseResolver.GetAllExercises(ctx)
+}
+
 func (q queryResolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.Goal, error) {
 	return q.goalResolver.GetGoals(ctx, userEmail)
 }
@@ -161,11 +168,6 @@ func (q queryResolver) GetUserByID(ctx context.Context, userID string) (*graphql
 }
 
 func (q queryResolver) GetCoachByID(ctx context.Context, coachID string) (*graphql.Coach, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (q queryResolver) GetWorkoutLogByID(ctx context.Context, workoutLogID string) (*graphql.WorkoutLog, error) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -9,6 +9,11 @@ type Coach struct {
 	Specialty string `json:"Specialty"`
 }
 
+type Exercise struct {
+	ID   string `json:"ID"`
+	Name string `json:"Name"`
+}
+
 type Goal struct {
 	ID          string `json:"ID"`
 	Name        string `json:"Name"`
@@ -56,12 +61,12 @@ type UserProfile struct {
 	Weight *float64 `json:"Weight,omitempty"`
 }
 
-type WorkoutLog struct {
-	ID       string  `json:"ID"`
-	UserID   string  `json:"UserID"`
-	Exercise string  `json:"Exercise"`
-	Sets     int     `json:"Sets"`
-	Reps     int     `json:"Reps"`
-	Weight   float64 `json:"Weight"`
-	Date     string  `json:"Date"`
+type Workout struct {
+	ID           string  `json:"ID"`
+	UserEmail    string  `json:"UserEmail"`
+	ExerciseName string  `json:"ExerciseName"`
+	Sets         int     `json:"Sets"`
+	Reps         int     `json:"Reps"`
+	Weight       float64 `json:"Weight"`
+	Date         string  `json:"Date"`
 }

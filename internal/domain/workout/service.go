@@ -5,10 +5,11 @@ package workout
 import (
 	"context"
 	"errors"
+	"github.com/FitBuddy/pkg/log"
 	"time"
 )
 
-// Service handles business logic related to workout log entries.
+// Service handles business logic related to workout entries.
 type Service struct {
 	workoutRepository *Repository
 }
@@ -20,28 +21,34 @@ func NewService(workoutRepository *Repository) *Service {
 	}
 }
 
-// CreateLog creates a new workout log entry.
-func (s *Service) CreateLog(ctx context.Context, userID, exercise string, sets, reps int, weight float64, loggedAt time.Time) (*Log, error) {
-	if userID == "" || exercise == "" || sets <= 0 || reps <= 0 || weight <= 0 {
-		return nil, errors.New("user ID, exercise, positive sets, positive reps, and positive weight are required")
+// CreateWorkout creates a new workout entry.
+func (s *Service) CreateWorkout(ctx context.Context, email, exercise string, sets, reps int, weight float64, createdAt time.Time) (*Workout, error) {
+	if email == "" || exercise == "" || sets <= 0 || reps <= 0 || weight <= 0 || createdAt == (time.Time{}) {
+		return nil, errors.New("email, exercise, createdAt time, positive sets, positive reps, and positive weight are required")
 	}
 
-	newLog := NewLog(userID, exercise, sets, reps, weight, loggedAt)
+	workout := NewWorkout(email, exercise, sets, reps, weight, createdAt)
 
-	if err := s.workoutRepository.CreateLog(ctx, newLog); err != nil {
+	if err := s.workoutRepository.CreateWorkout(ctx, workout); err != nil {
+		log.C(ctx).Infof("Creating Workout for user with email %q...", err)
 		return nil, err
 	}
 
-	return newLog, nil
+	return workout, nil
+}
+
+// GetAllWorkouts retrieves all workouts.
+func (s *Service) GetAllWorkouts(ctx context.Context, email string, date time.Time) ([]*Workout, error) {
+	return s.workoutRepository.GetAllWorkouts(ctx, email, date)
 }
 
 // GetLogByID retrieves a workout log entry by ID.
-func (s *Service) GetLogByID(ctx context.Context, workoutLogID string) (*Log, error) {
+func (s *Service) GetLogByID(ctx context.Context, workoutLogID string) (*Workout, error) {
 	return s.workoutRepository.GetLogByID(ctx, workoutLogID)
 }
 
 // UpdateLog updates an existing workout log entry.
-func (s *Service) UpdateLog(ctx context.Context, workoutLogID, exercise string, sets, reps int, weight float64, loggedAt time.Time) (*Log, error) {
+func (s *Service) UpdateLog(ctx context.Context, workoutLogID, exercise string, sets, reps int, weight float64, loggedAt time.Time) (*Workout, error) {
 	if exercise == "" || sets <= 0 || reps <= 0 || weight <= 0 {
 		return nil, errors.New("exercise, positive sets, positive reps, and positive weight are required")
 	}
@@ -54,11 +61,11 @@ func (s *Service) UpdateLog(ctx context.Context, workoutLogID, exercise string, 
 		return nil, errors.New("workout log entry not found")
 	}
 
-	existingLog.Exercise = exercise
+	existingLog.ExerciseName = exercise
 	existingLog.Sets = sets
 	existingLog.Reps = reps
 	existingLog.Weight = weight
-	existingLog.LoggedAt = loggedAt
+	existingLog.CreatedAt = loggedAt
 
 	if err := s.workoutRepository.UpdateLog(ctx, existingLog); err != nil {
 		return nil, err

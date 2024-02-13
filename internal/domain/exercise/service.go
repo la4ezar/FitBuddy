@@ -32,6 +32,11 @@ func (s *Service) CreateExercise(ctx context.Context, name, description string) 
 	return newExercise, nil
 }
 
+// GetAllExercises retrieves all exercises.
+func (s *Service) GetAllExercises(ctx context.Context) ([]*Exercise, error) {
+	return s.exerciseRepository.GetAllExercises(ctx)
+}
+
 // GetExerciseByID retrieves an exercise by ID.
 func (s *Service) GetExerciseByID(ctx context.Context, exerciseID string) (*Exercise, error) {
 	return s.exerciseRepository.GetExerciseByID(ctx, exerciseID)

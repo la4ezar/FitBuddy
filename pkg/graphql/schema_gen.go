@@ -53,6 +53,11 @@ type ComplexityRoot struct {
 		Specialty func(childComplexity int) int
 	}
 
+	Exercise struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
+
 	Goal struct {
 		Description func(childComplexity int) int
 		EndDate     func(childComplexity int) int
@@ -69,7 +74,7 @@ type ComplexityRoot struct {
 		CreatePost         func(childComplexity int, title string, content string, email string) int
 		CreateSleep        func(childComplexity int, userEmail string, sleepTime string, wakeTime string, date string) int
 		CreateUser         func(childComplexity int, email string, password string) int
-		CreateWorkoutLog   func(childComplexity int, userID string, exercise string, sets int, reps int, weight float64) int
+		CreateWorkout      func(childComplexity int, email string, exercise string, date string, sets int, reps int, weight float64) int
 		LoginUser          func(childComplexity int, email string, password string) int
 		LogoutUser         func(childComplexity int, email string) int
 		UnbookCoach        func(childComplexity int, email string, coachName string) int
@@ -92,16 +97,17 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetAllCoaches          func(childComplexity int) int
-		GetAllPosts            func(childComplexity int) int
-		GetCoachByID           func(childComplexity int, coachID string) int
-		GetGoals               func(childComplexity int, email string) int
-		GetNutritionLogByID    func(childComplexity int, nutritionLogID string) int
-		GetSleepByEmailAndDate func(childComplexity int, userEmail string, date string) int
-		GetUserByID            func(childComplexity int, userID string) int
-		GetWorkoutLogByID      func(childComplexity int, workoutLogID string) int
-		IsCoachBooked          func(childComplexity int, coachName string) int
-		IsCoachBookedByUser    func(childComplexity int, coachName string, userEmail string) int
+		GetAllCoaches                func(childComplexity int) int
+		GetAllExercises              func(childComplexity int) int
+		GetAllPosts                  func(childComplexity int) int
+		GetAllWorkoutsByEmailAndDate func(childComplexity int, email string, date string) int
+		GetCoachByID                 func(childComplexity int, coachID string) int
+		GetGoals                     func(childComplexity int, email string) int
+		GetNutritionLogByID          func(childComplexity int, nutritionLogID string) int
+		GetSleepByEmailAndDate       func(childComplexity int, userEmail string, date string) int
+		GetUserByID                  func(childComplexity int, userID string) int
+		IsCoachBooked                func(childComplexity int, coachName string) int
+		IsCoachBookedByUser          func(childComplexity int, coachName string, userEmail string) int
 	}
 
 	Sleep struct {
@@ -121,14 +127,14 @@ type ComplexityRoot struct {
 		Weight func(childComplexity int) int
 	}
 
-	WorkoutLog struct {
-		Date     func(childComplexity int) int
-		Exercise func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Reps     func(childComplexity int) int
-		Sets     func(childComplexity int) int
-		UserID   func(childComplexity int) int
-		Weight   func(childComplexity int) int
+	Workout struct {
+		Date         func(childComplexity int) int
+		ExerciseName func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Reps         func(childComplexity int) int
+		Sets         func(childComplexity int) int
+		UserEmail    func(childComplexity int) int
+		Weight       func(childComplexity int) int
 	}
 }
 
@@ -142,7 +148,7 @@ type MutationResolver interface {
 	CreateCoach(ctx context.Context, name string, specialty string) (*Coach, error)
 	CreateGoal(ctx context.Context, name string, description string, startDate string, endDate string, email string) (*Goal, error)
 	CreateSleep(ctx context.Context, userEmail string, sleepTime string, wakeTime string, date string) (*Sleep, error)
-	CreateWorkoutLog(ctx context.Context, userID string, exercise string, sets int, reps int, weight float64) (*WorkoutLog, error)
+	CreateWorkout(ctx context.Context, email string, exercise string, date string, sets int, reps int, weight float64) (*Workout, error)
 	CreateNutritionLog(ctx context.Context, userID string, description string, calories int) (*NutritionLog, error)
 }
 type QueryResolver interface {
@@ -152,9 +158,10 @@ type QueryResolver interface {
 	GetGoals(ctx context.Context, email string) ([]*Goal, error)
 	GetAllPosts(ctx context.Context) ([]*Post, error)
 	GetSleepByEmailAndDate(ctx context.Context, userEmail string, date string) ([]*Sleep, error)
+	GetAllExercises(ctx context.Context) ([]*Exercise, error)
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 	GetCoachByID(ctx context.Context, coachID string) (*Coach, error)
-	GetWorkoutLogByID(ctx context.Context, workoutLogID string) (*WorkoutLog, error)
+	GetAllWorkoutsByEmailAndDate(ctx context.Context, email string, date string) ([]*Workout, error)
 	GetNutritionLogByID(ctx context.Context, nutritionLogID string) (*NutritionLog, error)
 }
 
@@ -204,6 +211,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Coach.Specialty(childComplexity), true
+
+	case "Exercise.ID":
+		if e.complexity.Exercise.ID == nil {
+			break
+		}
+
+		return e.complexity.Exercise.ID(childComplexity), true
+
+	case "Exercise.Name":
+		if e.complexity.Exercise.Name == nil {
+			break
+		}
+
+		return e.complexity.Exercise.Name(childComplexity), true
 
 	case "Goal.Description":
 		if e.complexity.Goal.Description == nil {
@@ -324,17 +345,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["email"].(string), args["password"].(string)), true
 
-	case "Mutation.createWorkoutLog":
-		if e.complexity.Mutation.CreateWorkoutLog == nil {
+	case "Mutation.createWorkout":
+		if e.complexity.Mutation.CreateWorkout == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createWorkoutLog_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createWorkout_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateWorkoutLog(childComplexity, args["userID"].(string), args["exercise"].(string), args["sets"].(int), args["reps"].(int), args["weight"].(float64)), true
+		return e.complexity.Mutation.CreateWorkout(childComplexity, args["email"].(string), args["exercise"].(string), args["date"].(string), args["sets"].(int), args["reps"].(int), args["weight"].(float64)), true
 
 	case "Mutation.loginUser":
 		if e.complexity.Mutation.LoginUser == nil {
@@ -449,12 +470,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllCoaches(childComplexity), true
 
+	case "Query.getAllExercises":
+		if e.complexity.Query.GetAllExercises == nil {
+			break
+		}
+
+		return e.complexity.Query.GetAllExercises(childComplexity), true
+
 	case "Query.getAllPosts":
 		if e.complexity.Query.GetAllPosts == nil {
 			break
 		}
 
 		return e.complexity.Query.GetAllPosts(childComplexity), true
+
+	case "Query.getAllWorkoutsByEmailAndDate":
+		if e.complexity.Query.GetAllWorkoutsByEmailAndDate == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAllWorkoutsByEmailAndDate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllWorkoutsByEmailAndDate(childComplexity, args["email"].(string), args["date"].(string)), true
 
 	case "Query.getCoachByID":
 		if e.complexity.Query.GetCoachByID == nil {
@@ -515,18 +555,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetUserByID(childComplexity, args["userID"].(string)), true
-
-	case "Query.getWorkoutLogByID":
-		if e.complexity.Query.GetWorkoutLogByID == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getWorkoutLogByID_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetWorkoutLogByID(childComplexity, args["workoutLogID"].(string)), true
 
 	case "Query.isCoachBooked":
 		if e.complexity.Query.IsCoachBooked == nil {
@@ -608,54 +636,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserProfile.Weight(childComplexity), true
 
-	case "WorkoutLog.Date":
-		if e.complexity.WorkoutLog.Date == nil {
+	case "Workout.Date":
+		if e.complexity.Workout.Date == nil {
 			break
 		}
 
-		return e.complexity.WorkoutLog.Date(childComplexity), true
+		return e.complexity.Workout.Date(childComplexity), true
 
-	case "WorkoutLog.Exercise":
-		if e.complexity.WorkoutLog.Exercise == nil {
+	case "Workout.ExerciseName":
+		if e.complexity.Workout.ExerciseName == nil {
 			break
 		}
 
-		return e.complexity.WorkoutLog.Exercise(childComplexity), true
+		return e.complexity.Workout.ExerciseName(childComplexity), true
 
-	case "WorkoutLog.ID":
-		if e.complexity.WorkoutLog.ID == nil {
+	case "Workout.ID":
+		if e.complexity.Workout.ID == nil {
 			break
 		}
 
-		return e.complexity.WorkoutLog.ID(childComplexity), true
+		return e.complexity.Workout.ID(childComplexity), true
 
-	case "WorkoutLog.Reps":
-		if e.complexity.WorkoutLog.Reps == nil {
+	case "Workout.Reps":
+		if e.complexity.Workout.Reps == nil {
 			break
 		}
 
-		return e.complexity.WorkoutLog.Reps(childComplexity), true
+		return e.complexity.Workout.Reps(childComplexity), true
 
-	case "WorkoutLog.Sets":
-		if e.complexity.WorkoutLog.Sets == nil {
+	case "Workout.Sets":
+		if e.complexity.Workout.Sets == nil {
 			break
 		}
 
-		return e.complexity.WorkoutLog.Sets(childComplexity), true
+		return e.complexity.Workout.Sets(childComplexity), true
 
-	case "WorkoutLog.UserID":
-		if e.complexity.WorkoutLog.UserID == nil {
+	case "Workout.UserEmail":
+		if e.complexity.Workout.UserEmail == nil {
 			break
 		}
 
-		return e.complexity.WorkoutLog.UserID(childComplexity), true
+		return e.complexity.Workout.UserEmail(childComplexity), true
 
-	case "WorkoutLog.Weight":
-		if e.complexity.WorkoutLog.Weight == nil {
+	case "Workout.Weight":
+		if e.complexity.Workout.Weight == nil {
 			break
 		}
 
-		return e.complexity.WorkoutLog.Weight(childComplexity), true
+		return e.complexity.Workout.Weight(childComplexity), true
 
 	}
 	return 0, false
@@ -1011,18 +1039,18 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createWorkoutLog_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createWorkout_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["userID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["userID"] = arg0
+	args["email"] = arg0
 	var arg1 string
 	if tmp, ok := rawArgs["exercise"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exercise"))
@@ -1032,33 +1060,42 @@ func (ec *executionContext) field_Mutation_createWorkoutLog_args(ctx context.Con
 		}
 	}
 	args["exercise"] = arg1
-	var arg2 int
-	if tmp, ok := rawArgs["sets"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sets"))
-		arg2, err = ec.unmarshalNInt2int(ctx, tmp)
+	var arg2 string
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["sets"] = arg2
+	args["date"] = arg2
 	var arg3 int
-	if tmp, ok := rawArgs["reps"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reps"))
+	if tmp, ok := rawArgs["sets"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sets"))
 		arg3, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["reps"] = arg3
-	var arg4 float64
-	if tmp, ok := rawArgs["weight"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
-		arg4, err = ec.unmarshalNFloat2float64(ctx, tmp)
+	args["sets"] = arg3
+	var arg4 int
+	if tmp, ok := rawArgs["reps"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reps"))
+		arg4, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["weight"] = arg4
+	args["reps"] = arg4
+	var arg5 float64
+	if tmp, ok := rawArgs["weight"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
+		arg5, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["weight"] = arg5
 	return args, nil
 }
 
@@ -1137,6 +1174,30 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAllWorkoutsByEmailAndDate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["email"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg1
 	return args, nil
 }
 
@@ -1221,21 +1282,6 @@ func (ec *executionContext) field_Query_getUserByID_args(ctx context.Context, ra
 		}
 	}
 	args["userID"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getWorkoutLogByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["workoutLogID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workoutLogID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["workoutLogID"] = arg0
 	return args, nil
 }
 
@@ -1482,6 +1528,94 @@ func (ec *executionContext) _Coach_Specialty(ctx context.Context, field graphql.
 func (ec *executionContext) fieldContext_Coach_Specialty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Coach",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Exercise_ID(ctx context.Context, field graphql.CollectedField, obj *Exercise) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Exercise_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Exercise_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Exercise",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Exercise_Name(ctx context.Context, field graphql.CollectedField, obj *Exercise) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Exercise_Name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Exercise_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Exercise",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2246,8 +2380,8 @@ func (ec *executionContext) fieldContext_Mutation_createSleep(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createWorkoutLog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createWorkoutLog(ctx, field)
+func (ec *executionContext) _Mutation_createWorkout(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createWorkout(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2260,7 +2394,7 @@ func (ec *executionContext) _Mutation_createWorkoutLog(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateWorkoutLog(rctx, fc.Args["userID"].(string), fc.Args["exercise"].(string), fc.Args["sets"].(int), fc.Args["reps"].(int), fc.Args["weight"].(float64))
+		return ec.resolvers.Mutation().CreateWorkout(rctx, fc.Args["email"].(string), fc.Args["exercise"].(string), fc.Args["date"].(string), fc.Args["sets"].(int), fc.Args["reps"].(int), fc.Args["weight"].(float64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2269,12 +2403,12 @@ func (ec *executionContext) _Mutation_createWorkoutLog(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*WorkoutLog)
+	res := resTmp.(*Workout)
 	fc.Result = res
-	return ec.marshalOWorkoutLog2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkoutLog(ctx, field.Selections, res)
+	return ec.marshalOWorkout2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkout(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createWorkoutLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createWorkout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2283,21 +2417,21 @@ func (ec *executionContext) fieldContext_Mutation_createWorkoutLog(ctx context.C
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "ID":
-				return ec.fieldContext_WorkoutLog_ID(ctx, field)
-			case "UserID":
-				return ec.fieldContext_WorkoutLog_UserID(ctx, field)
-			case "Exercise":
-				return ec.fieldContext_WorkoutLog_Exercise(ctx, field)
+				return ec.fieldContext_Workout_ID(ctx, field)
+			case "UserEmail":
+				return ec.fieldContext_Workout_UserEmail(ctx, field)
+			case "ExerciseName":
+				return ec.fieldContext_Workout_ExerciseName(ctx, field)
 			case "Sets":
-				return ec.fieldContext_WorkoutLog_Sets(ctx, field)
+				return ec.fieldContext_Workout_Sets(ctx, field)
 			case "Reps":
-				return ec.fieldContext_WorkoutLog_Reps(ctx, field)
+				return ec.fieldContext_Workout_Reps(ctx, field)
 			case "Weight":
-				return ec.fieldContext_WorkoutLog_Weight(ctx, field)
+				return ec.fieldContext_Workout_Weight(ctx, field)
 			case "Date":
-				return ec.fieldContext_WorkoutLog_Date(ctx, field)
+				return ec.fieldContext_Workout_Date(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkoutLog", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Workout", field.Name)
 		},
 	}
 	defer func() {
@@ -2307,7 +2441,7 @@ func (ec *executionContext) fieldContext_Mutation_createWorkoutLog(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createWorkoutLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createWorkout_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3168,6 +3302,56 @@ func (ec *executionContext) fieldContext_Query_getSleepByEmailAndDate(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getAllExercises(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllExercises(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllExercises(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Exercise)
+	fc.Result = res
+	return ec.marshalNExercise2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐExerciseᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllExercises(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Exercise_ID(ctx, field)
+			case "Name":
+				return ec.fieldContext_Exercise_Name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Exercise", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getUserByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getUserByID(ctx, field)
 	if err != nil {
@@ -3288,8 +3472,8 @@ func (ec *executionContext) fieldContext_Query_getCoachByID(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getWorkoutLogByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getWorkoutLogByID(ctx, field)
+func (ec *executionContext) _Query_getAllWorkoutsByEmailAndDate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllWorkoutsByEmailAndDate(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3302,21 +3486,24 @@ func (ec *executionContext) _Query_getWorkoutLogByID(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetWorkoutLogByID(rctx, fc.Args["workoutLogID"].(string))
+		return ec.resolvers.Query().GetAllWorkoutsByEmailAndDate(rctx, fc.Args["email"].(string), fc.Args["date"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*WorkoutLog)
+	res := resTmp.([]*Workout)
 	fc.Result = res
-	return ec.marshalOWorkoutLog2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkoutLog(ctx, field.Selections, res)
+	return ec.marshalNWorkout2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkoutᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getWorkoutLogByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getAllWorkoutsByEmailAndDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3325,21 +3512,21 @@ func (ec *executionContext) fieldContext_Query_getWorkoutLogByID(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "ID":
-				return ec.fieldContext_WorkoutLog_ID(ctx, field)
-			case "UserID":
-				return ec.fieldContext_WorkoutLog_UserID(ctx, field)
-			case "Exercise":
-				return ec.fieldContext_WorkoutLog_Exercise(ctx, field)
+				return ec.fieldContext_Workout_ID(ctx, field)
+			case "UserEmail":
+				return ec.fieldContext_Workout_UserEmail(ctx, field)
+			case "ExerciseName":
+				return ec.fieldContext_Workout_ExerciseName(ctx, field)
 			case "Sets":
-				return ec.fieldContext_WorkoutLog_Sets(ctx, field)
+				return ec.fieldContext_Workout_Sets(ctx, field)
 			case "Reps":
-				return ec.fieldContext_WorkoutLog_Reps(ctx, field)
+				return ec.fieldContext_Workout_Reps(ctx, field)
 			case "Weight":
-				return ec.fieldContext_WorkoutLog_Weight(ctx, field)
+				return ec.fieldContext_Workout_Weight(ctx, field)
 			case "Date":
-				return ec.fieldContext_WorkoutLog_Date(ctx, field)
+				return ec.fieldContext_Workout_Date(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type WorkoutLog", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Workout", field.Name)
 		},
 	}
 	defer func() {
@@ -3349,7 +3536,7 @@ func (ec *executionContext) fieldContext_Query_getWorkoutLogByID(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getWorkoutLogByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_getAllWorkoutsByEmailAndDate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3892,8 +4079,8 @@ func (ec *executionContext) fieldContext_UserProfile_Weight(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkoutLog_ID(ctx context.Context, field graphql.CollectedField, obj *WorkoutLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkoutLog_ID(ctx, field)
+func (ec *executionContext) _Workout_ID(ctx context.Context, field graphql.CollectedField, obj *Workout) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workout_ID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3923,9 +4110,9 @@ func (ec *executionContext) _WorkoutLog_ID(ctx context.Context, field graphql.Co
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkoutLog_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Workout_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkoutLog",
+		Object:     "Workout",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3936,8 +4123,8 @@ func (ec *executionContext) fieldContext_WorkoutLog_ID(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkoutLog_UserID(ctx context.Context, field graphql.CollectedField, obj *WorkoutLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkoutLog_UserID(ctx, field)
+func (ec *executionContext) _Workout_UserEmail(ctx context.Context, field graphql.CollectedField, obj *Workout) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workout_UserEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3950,51 +4137,7 @@ func (ec *executionContext) _WorkoutLog_UserID(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkoutLog_UserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkoutLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkoutLog_Exercise(ctx context.Context, field graphql.CollectedField, obj *WorkoutLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkoutLog_Exercise(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Exercise, nil
+		return obj.UserEmail, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4011,9 +4154,9 @@ func (ec *executionContext) _WorkoutLog_Exercise(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkoutLog_Exercise(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Workout_UserEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkoutLog",
+		Object:     "Workout",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4024,8 +4167,52 @@ func (ec *executionContext) fieldContext_WorkoutLog_Exercise(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkoutLog_Sets(ctx context.Context, field graphql.CollectedField, obj *WorkoutLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkoutLog_Sets(ctx, field)
+func (ec *executionContext) _Workout_ExerciseName(ctx context.Context, field graphql.CollectedField, obj *Workout) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workout_ExerciseName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExerciseName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Workout_ExerciseName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Workout",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Workout_Sets(ctx context.Context, field graphql.CollectedField, obj *Workout) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workout_Sets(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4055,9 +4242,9 @@ func (ec *executionContext) _WorkoutLog_Sets(ctx context.Context, field graphql.
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkoutLog_Sets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Workout_Sets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkoutLog",
+		Object:     "Workout",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4068,8 +4255,8 @@ func (ec *executionContext) fieldContext_WorkoutLog_Sets(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkoutLog_Reps(ctx context.Context, field graphql.CollectedField, obj *WorkoutLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkoutLog_Reps(ctx, field)
+func (ec *executionContext) _Workout_Reps(ctx context.Context, field graphql.CollectedField, obj *Workout) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workout_Reps(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4099,9 +4286,9 @@ func (ec *executionContext) _WorkoutLog_Reps(ctx context.Context, field graphql.
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkoutLog_Reps(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Workout_Reps(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkoutLog",
+		Object:     "Workout",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4112,8 +4299,8 @@ func (ec *executionContext) fieldContext_WorkoutLog_Reps(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkoutLog_Weight(ctx context.Context, field graphql.CollectedField, obj *WorkoutLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkoutLog_Weight(ctx, field)
+func (ec *executionContext) _Workout_Weight(ctx context.Context, field graphql.CollectedField, obj *Workout) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workout_Weight(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4143,9 +4330,9 @@ func (ec *executionContext) _WorkoutLog_Weight(ctx context.Context, field graphq
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkoutLog_Weight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Workout_Weight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkoutLog",
+		Object:     "Workout",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4156,8 +4343,8 @@ func (ec *executionContext) fieldContext_WorkoutLog_Weight(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkoutLog_Date(ctx context.Context, field graphql.CollectedField, obj *WorkoutLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkoutLog_Date(ctx, field)
+func (ec *executionContext) _Workout_Date(ctx context.Context, field graphql.CollectedField, obj *Workout) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workout_Date(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4187,9 +4374,9 @@ func (ec *executionContext) _WorkoutLog_Date(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkoutLog_Date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Workout_Date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WorkoutLog",
+		Object:     "Workout",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -6035,6 +6222,50 @@ func (ec *executionContext) _Coach(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
+var exerciseImplementors = []string{"Exercise"}
+
+func (ec *executionContext) _Exercise(ctx context.Context, sel ast.SelectionSet, obj *Exercise) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exerciseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Exercise")
+		case "ID":
+			out.Values[i] = ec._Exercise_ID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Name":
+			out.Values[i] = ec._Exercise_Name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var goalImplementors = []string{"Goal"}
 
 func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj *Goal) graphql.Marshaler {
@@ -6155,9 +6386,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createSleep(ctx, field)
 			})
-		case "createWorkoutLog":
+		case "createWorkout":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createWorkoutLog(ctx, field)
+				return ec._Mutation_createWorkout(ctx, field)
 			})
 		case "createNutritionLog":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -6455,6 +6686,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAllExercises":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllExercises(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getUserByID":
 			field := field
 
@@ -6493,7 +6746,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getWorkoutLogByID":
+		case "getAllWorkoutsByEmailAndDate":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -6502,7 +6755,10 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getWorkoutLogByID(ctx, field)
+				res = ec._Query_getAllWorkoutsByEmailAndDate(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -6695,49 +6951,49 @@ func (ec *executionContext) _UserProfile(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var workoutLogImplementors = []string{"WorkoutLog"}
+var workoutImplementors = []string{"Workout"}
 
-func (ec *executionContext) _WorkoutLog(ctx context.Context, sel ast.SelectionSet, obj *WorkoutLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workoutLogImplementors)
+func (ec *executionContext) _Workout(ctx context.Context, sel ast.SelectionSet, obj *Workout) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workoutImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkoutLog")
+			out.Values[i] = graphql.MarshalString("Workout")
 		case "ID":
-			out.Values[i] = ec._WorkoutLog_ID(ctx, field, obj)
+			out.Values[i] = ec._Workout_ID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "UserID":
-			out.Values[i] = ec._WorkoutLog_UserID(ctx, field, obj)
+		case "UserEmail":
+			out.Values[i] = ec._Workout_UserEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "Exercise":
-			out.Values[i] = ec._WorkoutLog_Exercise(ctx, field, obj)
+		case "ExerciseName":
+			out.Values[i] = ec._Workout_ExerciseName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "Sets":
-			out.Values[i] = ec._WorkoutLog_Sets(ctx, field, obj)
+			out.Values[i] = ec._Workout_Sets(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "Reps":
-			out.Values[i] = ec._WorkoutLog_Reps(ctx, field, obj)
+			out.Values[i] = ec._Workout_Reps(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "Weight":
-			out.Values[i] = ec._WorkoutLog_Weight(ctx, field, obj)
+			out.Values[i] = ec._Workout_Weight(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "Date":
-			out.Values[i] = ec._WorkoutLog_Date(ctx, field, obj)
+			out.Values[i] = ec._Workout_Date(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7159,6 +7415,60 @@ func (ec *executionContext) marshalNCoach2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgra
 	return ec._Coach(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNExercise2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐExerciseᚄ(ctx context.Context, sel ast.SelectionSet, v []*Exercise) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNExercise2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐExercise(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNExercise2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐExercise(ctx context.Context, sel ast.SelectionSet, v *Exercise) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Exercise(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	res, err := graphql.UnmarshalFloatContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7379,6 +7689,60 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNWorkout2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkoutᚄ(ctx context.Context, sel ast.SelectionSet, v []*Workout) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNWorkout2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkout(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWorkout2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkout(ctx context.Context, sel ast.SelectionSet, v *Workout) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Workout(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -7750,11 +8114,11 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgrap
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOWorkoutLog2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkoutLog(ctx context.Context, sel ast.SelectionSet, v *WorkoutLog) graphql.Marshaler {
+func (ec *executionContext) marshalOWorkout2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐWorkout(ctx context.Context, sel ast.SelectionSet, v *Workout) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._WorkoutLog(ctx, sel, v)
+	return ec._Workout(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

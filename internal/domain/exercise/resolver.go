@@ -2,6 +2,8 @@ package exercise
 
 import (
 	"context"
+	"github.com/FitBuddy/pkg/graphql"
+	"github.com/FitBuddy/pkg/log"
 )
 
 // Resolver handles GraphQL queries and mutations for the Exercise aggregate.
@@ -24,6 +26,27 @@ func (r *Resolver) CreateExerciseMutation(ctx context.Context, input CreateExerc
 // GetExerciseQuery is a GraphQL query to retrieve an exercise by ID.
 func (r *Resolver) GetExerciseQuery(ctx context.Context, exerciseID string) (*Exercise, error) {
 	return r.exerciseService.GetExerciseByID(ctx, exerciseID)
+}
+
+// GetAllExercises is a GraphQL query to retrieve all exercises.
+func (r *Resolver) GetAllExercises(ctx context.Context) ([]*graphql.Exercise, error) {
+	log.C(ctx).Info("Getting all exercises...")
+
+	exercises, err := r.exerciseService.GetAllExercises(ctx)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Info("Successfully got all exercises")
+
+	gqlExercises := make([]*graphql.Exercise, 0, len(exercises))
+	for _, e := range exercises {
+		gqlExercises = append(gqlExercises, &graphql.Exercise{
+			ID:   e.ID,
+			Name: e.Name,
+		})
+	}
+
+	return gqlExercises, nil
 }
 
 // UpdateExerciseMutation is a GraphQL mutation to update an existing

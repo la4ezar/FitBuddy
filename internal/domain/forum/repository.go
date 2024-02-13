@@ -61,6 +61,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, err
 	return &post, nil
 }
 
+// GetAllPosts retrieves all posts from the database.
 func (r *Repository) GetAllPosts(ctx context.Context) ([]*Post, error) {
 	rows, err := r.db.QueryContext(ctx, `
         SELECT p.id, u.email, p.title, p.content, p.created_at

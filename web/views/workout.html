@@ -39,12 +39,7 @@
     <form id="workout-form">
         <label for="exercise">Exercise:</label>
         <input list="exerciseList" id="exercise" name="exercise" required>
-        <datalist id="exerciseList">
-            <option value="Bench Press">
-            <option value="Deadlift">
-            <option value="Squat">
-            <option value="Resistance Band">
-        </datalist>
+        <datalist id="exerciseList"></datalist>
 
         <label for="sets">Sets:</label>
         <input type="number" id="sets" name="sets" required min="1">
@@ -53,10 +48,14 @@
         <input type="number" id="reps" name="reps" required min="1">
 
         <label for="weight">Weight (kg):</label>
-        <input type="number" id="weight" name="weight" required min="0">
+        <input type="number" step="0.01" id="weight" name="weight" required min="0">
 
         <button type="submit">Track Workout</button>
     </form>
+    <div class="workout-display">
+        <h1>All Workouts</h1>
+        <div class="workouts-list"></div>
+    </div>
 </div>
 
 <script src="../src/js/authorization.js" type="module" defer></script>

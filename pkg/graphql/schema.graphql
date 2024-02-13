@@ -10,9 +10,12 @@ type Query {
     # Sleep
     getSleepByEmailAndDate(userEmail: String!, date: String!): [Sleep!]!
 
+
+    getAllExercises: [Exercise!]!
     getUserByID(userID: ID!): User
     getCoachByID(coachID: ID!): Coach
-    getWorkoutLogByID(workoutLogID: ID!): WorkoutLog
+    getAllWorkoutsByEmailAndDate(email: String!, date: String!): [Workout!]!
+
     getNutritionLogByID(nutritionLogID: ID!): NutritionLog
 
 }
@@ -33,7 +36,7 @@ type Mutation {
     # Sleep
     createSleep(userEmail: String!, sleepTime: String!, wakeTime: String!, date: String!): Sleep
 
-    createWorkoutLog(userID: ID!, exercise: String!, sets: Int!, reps: Int!, weight: Float!): WorkoutLog
+    createWorkout(email: ID!, exercise: String!, date: String!, sets: Int!, reps: Int!, weight: Float!): Workout
     createNutritionLog(userID: ID!, description: String!, calories: Int!): NutritionLog
 }
 
@@ -48,14 +51,19 @@ type UserProfile {
     Weight: Float
 }
 
-type WorkoutLog {
+type Workout {
     ID: ID!
-    UserID: ID!
-    Exercise: String!
+    UserEmail: String!
+    ExerciseName: String!
     Sets: Int!
     Reps: Int!
     Weight: Float!
     Date: String!
+}
+
+type Exercise {
+    ID: ID!
+    Name: String!
 }
 
 type NutritionLog {

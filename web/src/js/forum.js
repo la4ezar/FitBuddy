@@ -38,10 +38,19 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify({ query: gqlMutation }),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                if (data.errors) {
+                    alert('Creating workout failed. Please try again.');
+                } else {
+                    fetchAllPosts();
+                }
                 console.log(data)
-                fetchAllPosts();
             })
             .catch(error => {
                 console.error('Error making GraphQL request:', error);
@@ -73,9 +82,18 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify({ query: gqlQuery }),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                displayPosts(data.data.getAllPosts);
+                if (data.errors) {
+                    alert('Getting all posts failed. Please try again.');
+                } else {
+                    displayPosts(data.data.getAllPosts);
+                }
             })
             .catch(error => {
                 console.error('Error making GraphQL request:', error);

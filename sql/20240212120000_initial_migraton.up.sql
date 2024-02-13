@@ -39,7 +39,7 @@ CREATE TABLE workouts
     sets        int       NOT NULL,
     reps        int       NOT NULL,
     weight      float     NOT NULL,
-    logged_at   timestamp NOT NULL,
+    created_at   timestamp NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE,
     FOREIGN KEY (exercise_id) REFERENCES exercises (id) on DELETE CASCADE
 );
@@ -68,7 +68,7 @@ CREATE TABLE nutrition
     id        uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
     user_id   uuid      NOT NULL,
     meal_id   uuid      NOT NULL,
-    logged_at timestamp NOT NULL,
+    created_at timestamp NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE,
     FOREIGN KEY (meal_id) REFERENCES meals (id) on DELETE CASCADE
 );
@@ -79,7 +79,7 @@ CREATE TABLE sleep
     user_id    uuid      NOT NULL,
     sleep_time timestamp NOT NULL,
     wake_time  timestamp NOT NULL,
-    logged_at  timestamp NOT NULL,
+    created_at  timestamp NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE
 );
 
