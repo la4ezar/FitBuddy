@@ -59,6 +59,7 @@ type ComplexityRoot struct {
 	}
 
 	Goal struct {
+		Completed   func(childComplexity int) int
 		Description func(childComplexity int) int
 		EndDate     func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -79,6 +80,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		BookCoach       func(childComplexity int, email string, coachName string) int
+		CompleteGoal    func(childComplexity int, userEmail string, goalID string) int
 		CreateCoach     func(childComplexity int, name string, specialty string) int
 		CreateGoal      func(childComplexity int, name string, description string, startDate string, endDate string, email string) int
 		CreateNutrition func(childComplexity int, email string, meal string, date string, servingSize int, numberOfServings int) int
@@ -166,6 +168,7 @@ type MutationResolver interface {
 	UnbookCoach(ctx context.Context, email string, coachName string) (bool, error)
 	CreateCoach(ctx context.Context, name string, specialty string) (*Coach, error)
 	CreateGoal(ctx context.Context, name string, description string, startDate string, endDate string, email string) (*Goal, error)
+	CompleteGoal(ctx context.Context, userEmail string, goalID string) (bool, error)
 	DeleteGoal(ctx context.Context, goalID string) (bool, error)
 	CreateSleepLog(ctx context.Context, userEmail string, sleepLogTime string, wakeTime string, date string) (*SleepLog, error)
 	DeleteSleepLog(ctx context.Context, sleepLogID string) (bool, error)
@@ -250,6 +253,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Exercise.Name(childComplexity), true
 
+	case "Goal.Completed":
+		if e.complexity.Goal.Completed == nil {
+			break
+		}
+
+		return e.complexity.Goal.Completed(childComplexity), true
+
 	case "Goal.Description":
 		if e.complexity.Goal.Description == nil {
 			break
@@ -331,6 +341,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.BookCoach(childComplexity, args["email"].(string), args["coachName"].(string)), true
+
+	case "Mutation.completeGoal":
+		if e.complexity.Mutation.CompleteGoal == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_completeGoal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CompleteGoal(childComplexity, args["userEmail"].(string), args["goalID"].(string)), true
 
 	case "Mutation.createCoach":
 		if e.complexity.Mutation.CreateCoach == nil {
@@ -957,6 +979,30 @@ func (ec *executionContext) field_Mutation_bookCoach_args(ctx context.Context, r
 		}
 	}
 	args["coachName"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_completeGoal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userEmail"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userEmail"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userEmail"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["goalID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goalID"))
+		arg1, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["goalID"] = arg1
 	return args, nil
 }
 
@@ -2193,6 +2239,50 @@ func (ec *executionContext) fieldContext_LeaderboardUser_Score(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Goal_Completed(ctx context.Context, field graphql.CollectedField, obj *Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_Completed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Completed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_Completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Meal_ID(ctx context.Context, field graphql.CollectedField, obj *Meal) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Meal_ID(ctx, field)
 	if err != nil {
@@ -2792,6 +2882,8 @@ func (ec *executionContext) fieldContext_Mutation_createGoal(ctx context.Context
 				return ec.fieldContext_Goal_StartDate(ctx, field)
 			case "EndDate":
 				return ec.fieldContext_Goal_EndDate(ctx, field)
+			case "Completed":
+				return ec.fieldContext_Goal_Completed(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
 		},
@@ -2804,6 +2896,61 @@ func (ec *executionContext) fieldContext_Mutation_createGoal(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createGoal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_completeGoal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_completeGoal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CompleteGoal(rctx, fc.Args["userEmail"].(string), fc.Args["goalID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_completeGoal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_completeGoal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3811,6 +3958,8 @@ func (ec *executionContext) fieldContext_Query_getGoals(ctx context.Context, fie
 				return ec.fieldContext_Goal_StartDate(ctx, field)
 			case "EndDate":
 				return ec.fieldContext_Goal_EndDate(ctx, field)
+			case "Completed":
+				return ec.fieldContext_Goal_Completed(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
 		},
@@ -7121,6 +7270,11 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "Completed":
+			out.Values[i] = ec._Goal_Completed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7301,6 +7455,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createGoal(ctx, field)
 			})
+		case "completeGoal":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_completeGoal(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteGoal":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteGoal(ctx, field)

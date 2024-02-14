@@ -61,14 +61,14 @@ func (r *Repository) GetLeaderboardUsers(ctx context.Context) ([]*LeaderboardUse
 }
 
 // AddScore adds a score to the leaderboard for a specific user.
-func (r *Repository) AddScore(ctx context.Context, userID string, score float64) error {
+func (r *Repository) AddScore(ctx context.Context, email string, score float64) error {
 	query := `
-		INSERT INTO leaderboard (user_id, score)
-		VALUES ($1, $2)
-		ON CONFLICT (user_id) DO UPDATE SET score = leaderboard.score + EXCLUDED.score
+		UPDATE leaderboard
+		SET score = leaderboard.score + $2
+		WHERE user_id = (SELECT id FROM users WHERE email = $1)
 	`
 
-	_, err := r.db.ExecContext(ctx, query, userID, score)
+	_, err := r.db.ExecContext(ctx, query, email, score)
 	return err
 }
 

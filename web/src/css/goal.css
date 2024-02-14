@@ -63,7 +63,7 @@ button:hover {
     border: 1px solid #ddd;
     border-radius: 8px;
     margin: 10px;
-    padding: 15px;
+    padding: 15px 15px 20px 15px;
     width: 200px;
 }
 
@@ -79,11 +79,31 @@ button:hover {
     padding: 6px 10px;
     background-color: red;
     position: absolute;
-    top: 0;
-    right: 0;
+    bottom: 0;
+    left: 0;
     cursor: pointer;
 }
 
 .delete-goal-button:hover {
     background-color: darkred;
+}
+
+.complete-goal-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px 10px;
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.complete-goal-button:hover {
+    background-color: darkgreen;
+}
+
+.completed-goal {
+    background-color: lightgreen;
 }

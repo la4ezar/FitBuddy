@@ -37,12 +37,12 @@ func (s *Service) GetLeaderboardUsers(ctx context.Context) ([]*LeaderboardUser, 
 }
 
 // AddScore adds a score to the leaderboard for a specific user.
-func (s *Service) AddScore(ctx context.Context, userID string, score float64) error {
-	if userID == "" || score < 0 {
+func (s *Service) AddScore(ctx context.Context, userEmail string, score float64) error {
+	if userEmail == "" || score < 0 {
 		return errors.New("user ID and a non-negative score are required")
 	}
 
-	return s.repository.AddScore(ctx, userID, score)
+	return s.repository.AddScore(ctx, userEmail, score)
 }
 
 // GetTopScores retrieves the top N leaderboard entries.

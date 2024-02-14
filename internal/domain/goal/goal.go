@@ -12,6 +12,7 @@ type Goal struct {
 	Description string    `json:"description"`
 	StartDate   time.Time `json:"startDate"`
 	EndDate     time.Time `json:"endDate"`
+	Completed   bool      `json:"completed"`
 }
 
 // NewGoal creates a new Goal instance.
@@ -22,5 +23,6 @@ func NewGoal(name, description string, startDate, endDate time.Time) *Goal {
 		Description: description,
 		StartDate:   startDate,
 		EndDate:     endDate,
+		Completed:   false,
 	}
 }

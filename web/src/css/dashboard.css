@@ -101,7 +101,6 @@ h1 {
 .workout-display {
     text-align: center;
     max-width: 600px;
-    margin: 0 0 20px 0;
 }
 
 .workouts-list {
@@ -165,7 +164,6 @@ h1 {
     margin: 20px auto;
 }
 
-
 .sleep-list {
     text-align: center;
     display: block;
@@ -178,4 +176,41 @@ h1 {
     margin: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nutrition-container {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 50px auto;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.nutritions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.nutritions-table th, .nutritions-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.nutritions-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.nutritions-table tfoot {
+    font-weight: bold;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.nutritions-table tfoot td {
+    padding: 12px;
+    text-align: left;
+    border-top: 1px solid #ddd;
 }

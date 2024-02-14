@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     Description
                     StartDate
                     EndDate
+                    Completed
                 }
             }
         `;
@@ -98,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
         goals.forEach(goal => {
             const goalElement = document.createElement('div');
             goalElement.classList.add('goal-card');
+            goalElement.classList.add(`goal-${goal.ID}`);
 
             const nameElement = document.createElement('h3');
             nameElement.textContent = `Name: ${goal.Name}`;
@@ -116,6 +118,19 @@ document.addEventListener('DOMContentLoaded', function () {
             let goalEndDate = `${goal.EndDate}`.split(" ")[0]
             endDateElement.textContent = `End Date: ${goalEndDate}`;
             goalElement.appendChild(endDateElement);
+
+            if (!goal.Completed) {
+                const completeButton = document.createElement('button');
+                completeButton.textContent = '✓';
+                completeButton.className = 'complete-goal-button';
+                completeButton.classList.add(`complete-button-${goal.ID}`);
+                goalElement.appendChild(completeButton)
+                completeButton.addEventListener('click', () => {
+                    completeGoal(goal.ID)
+                });
+            } else {
+                goalElement.classList.add('completed-goal');
+            }
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'X';
@@ -151,6 +166,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     fetchAndDisplayGoals()
                 } else {
                     console.error('Failed to delete goal.');
+                }
+            })
+            .catch(error => {
+                console.error('Error making GraphQL request:', error);
+            });
+    }
+
+    function completeGoal(goalID) {
+        const gqlMutation = `
+            mutation {
+                completeGoal(userEmail: "${email}", goalID: "${goalID}")
+           }
+        `;
+
+        fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: gqlMutation }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.data && data.data.completeGoal) {
+                    const completedButton = document.querySelector(`.complete-button-${goalID}`);
+                    const parent = document.querySelector(`.goal-${goalID}`);
+                    if (completedButton) {
+                        completedButton.remove();
+                        parent.classList.add('completed-goal');
+                    }
+                } else {
+                    console.error('Failed to complete goal.');
                 }
             })
             .catch(error => {

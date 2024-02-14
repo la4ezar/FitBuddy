@@ -39,6 +39,7 @@ type Mutation {
     createCoach(name: String!, specialty: String!): Coach
     # Goals
     createGoal(name: String!, description: String!, startDate: String!, endDate: String!, email: String!): Goal
+    completeGoal(userEmail: String!, goalID: ID!): Boolean!
     deleteGoal(goalID: ID!): Boolean!
     # Sleep Log
     createSleepLog(userEmail: String!, sleepLogTime: String!, wakeTime: String!, date: String!): SleepLog
@@ -109,6 +110,7 @@ type Goal {
     Description: String!
     StartDate: String!
     EndDate: String!
+    Completed: Boolean!
 }
 
 type SleepLog {

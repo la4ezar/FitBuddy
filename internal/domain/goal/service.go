@@ -87,3 +87,19 @@ func (s *Service) DeleteGoal(ctx context.Context, goalID string) error {
 
 	return s.repository.DeleteGoal(ctx, goalID)
 }
+
+// CompleteGoal deletes a fitness or wellness goal by ID.
+func (s *Service) CompleteGoal(ctx context.Context, goalID string) error {
+	existingGoal, err := s.repository.GetGoalByID(ctx, goalID)
+	if err != nil {
+		return err
+	}
+	if existingGoal == nil {
+		return errors.New("goal not found")
+	}
+	if existingGoal.Completed {
+		return nil
+	}
+
+	return s.repository.CompleteGoalByID(ctx, goalID)
+}

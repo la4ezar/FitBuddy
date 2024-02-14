@@ -84,7 +84,7 @@ func main() {
 	workoutResolver := workout.NewResolver(workoutService)
 	sleepResolver := sleep.NewResolver(sleepService)
 	forumResolver := forum.NewResolver(forumService)
-	goalResolver := goal.NewResolver(goalService)
+	goalResolver := goal.NewResolver(goalService, leaderboardService)
 	nutritionResolver := nutrition.NewNutritionResolver(nutritionService)
 	leaderboardResolver := leaderboard.NewLeaderboardResolver(leaderboardService)
 

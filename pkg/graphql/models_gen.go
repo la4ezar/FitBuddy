@@ -20,6 +20,7 @@ type Goal struct {
 	Description string `json:"Description"`
 	StartDate   string `json:"StartDate"`
 	EndDate     string `json:"EndDate"`
+	Completed   bool   `json:"Completed"`
 }
 
 type LeaderboardUser struct {

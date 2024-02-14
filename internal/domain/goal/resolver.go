@@ -2,6 +2,7 @@ package goal
 
 import (
 	"context"
+	"github.com/FitBuddy/internal/domain/leaderboard"
 	"github.com/FitBuddy/pkg/graphql"
 	"github.com/FitBuddy/pkg/log"
 	"time"
@@ -9,13 +10,15 @@ import (
 
 // Resolver handles GraphQL queries and mutations for the Goal aggregate.
 type Resolver struct {
-	service *Service
+	service            *Service
+	leaderboardService *leaderboard.Service
 }
 
 // NewResolver creates a new Resolver instance.
-func NewResolver(service *Service) *Resolver {
+func NewResolver(service *Service, leaderboardService *leaderboard.Service) *Resolver {
 	return &Resolver{
-		service: service,
+		service:            service,
+		leaderboardService: leaderboardService,
 	}
 }
 
@@ -37,6 +40,7 @@ func (r *Resolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.G
 			Description: g.Description,
 			StartDate:   g.StartDate.Format("2006-01-02 15:04:05"),
 			EndDate:     g.EndDate.Format("2006-01-02 15:04:05"),
+			Completed:   g.Completed,
 		})
 	}
 
@@ -71,6 +75,26 @@ func (r *Resolver) DeleteGoal(ctx context.Context, goalID string) (bool, error) 
 		return false, err
 	}
 	log.C(ctx).Infof("Successfully deleted goal with ID %q...", goalID)
+
+	return true, nil
+}
+
+// CompleteGoal is a GraphQL mutation to complete a goal.
+func (r *Resolver) CompleteGoal(ctx context.Context, userEmail, goalID string) (bool, error) {
+	log.C(ctx).Infof("Completing goal with ID %q...", goalID)
+
+	err := r.service.CompleteGoal(ctx, goalID)
+	if err != nil {
+		return false, err
+	}
+	log.C(ctx).Infof("Successfully completed goal with ID %q...", goalID)
+
+	log.C(ctx).Infof("Adding score to user with email %q...", userEmail)
+	err = r.leaderboardService.AddScore(ctx, userEmail, 1)
+	if err != nil {
+		return false, err
+	}
+	log.C(ctx).Infof("Successfully added score to email %q...", userEmail)
 
 	return true, nil
 }

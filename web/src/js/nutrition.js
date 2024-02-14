@@ -1,25 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Get the current date
+    const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (!email) {
+        return
+    }
+
     let currentDate = new Date();
 
-    // Display the current date
     document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
 
-    // Add event listener for the Previous Date button
     document.querySelector('.prev-date').addEventListener('click', function () {
         currentDate.setDate(currentDate.getDate() - 1);
         updateCurrentDate();
         fetchAllNutritions(currentDate.toISOString());
     });
 
-    // Add event listener for the Next Date button
     document.querySelector('.next-date').addEventListener('click', function () {
         currentDate.setDate(currentDate.getDate() + 1);
         updateCurrentDate();
         fetchAllNutritions(currentDate.toISOString());
     });
 
-    // Function to update the displayed current date
     function updateCurrentDate() {
         document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
     }
@@ -70,13 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('nutrition-form').addEventListener('submit', async function (event) {
         event.preventDefault();
 
-        const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
-        if (emailCookie) {
-            console.log('Email:', emailCookie);
-        } else {
-            console.log('Email cookie not found.');
-        }
-
         const mealInput = document.getElementById('meal');
         const servingSizeInput = document.getElementById('serving-size');
         const numberOfServingsInput = document.getElementById('number-of-servings');
@@ -91,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // GraphQL mutation to create a workout
         const gqlMutation = `
             mutation {
-                createNutrition(email: "${emailCookie}", meal: "${meal}", date: "${date}", servingSize: ${servingSize}, numberOfServings: ${numberOfServings}) {
+                createNutrition(email: "${email}", meal: "${meal}", date: "${date}", servingSize: ${servingSize}, numberOfServings: ${numberOfServings}) {
                     ID
                 }
             }
@@ -123,18 +116,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function fetchAllNutritions(date) {
-        const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
-        if (emailCookie) {
-            console.log('Email:', emailCookie);
-        } else {
-            console.log('Email cookie not found.');
-        }
-        // Replace 'your-graphql-endpoint' with your actual GraphQL endpoint
         const graphqlEndpoint = 'http://localhost:8080/graphql';
 
         const gqlQuery = `
             query {
-                getAllNutritionsByEmailAndDate(email: "${emailCookie}", date: "${date}") {
+                getAllNutritionsByEmailAndDate(email: "${email}", date: "${date}") {
                     ID
                     UserEmail
                     MealName

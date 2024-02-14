@@ -92,6 +92,7 @@ CREATE TABLE goals
     description varchar(256) NOT NULL,
     start_date  timestamp    NOT NULL,
     end_date    timestamp    NOT NULL,
+    completed   bool         NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE
 );
 
@@ -131,15 +132,16 @@ CREATE TABLE leaderboard
     id      uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
     user_id uuid NOT NULL,
     score   int  NOT NULL,
+    UNIQUE (user_id),
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE
 );
 
 CREATE TABLE posts
 (
-    id         uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
-    user_id    uuid         NOT NULL,
-    title      varchar(256) NOT NULL,
-    content    varchar(256) NOT NULL,
+    id        uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
+    user_id   uuid         NOT NULL,
+    title     varchar(256) NOT NULL,
+    content   varchar(256) NOT NULL,
     logged_at timestamp    NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE
 );

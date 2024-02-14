@@ -60,6 +60,10 @@ func (m mutationResolver) CreateGoal(ctx context.Context, name string, descripti
 	return m.goalResolver.CreateGoal(ctx, email, name, description, parsedStartDate, parsedEndDate)
 }
 
+func (m mutationResolver) CompleteGoal(ctx context.Context, userEmail, goalID string) (bool, error) {
+	return m.goalResolver.CompleteGoal(ctx, userEmail, goalID)
+}
+
 func (m mutationResolver) DeleteGoal(ctx context.Context, goalID string) (bool, error) {
 	return m.goalResolver.DeleteGoal(ctx, goalID)
 }
