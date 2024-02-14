@@ -1,17 +1,19 @@
 package leaderboard
 
-// Leaderboard represents a leaderboard entry in the application.
-type Leaderboard struct {
-	UserID   string  `json:"userId"`
-	Username string  `json:"username"`
-	Score    float64 `json:"score"`
+import "github.com/google/uuid"
+
+// LeaderboardUser represents a leaderboard entry in the application.
+type LeaderboardUser struct {
+	ID        string `json:"id"`
+	UserEmail string `json:"userEmail"`
+	Score     int    `json:"score"`
 }
 
-// NewLeaderboard creates a new Leaderboard instance.
-func NewLeaderboard(userID, username string, score float64) *Leaderboard {
-	return &Leaderboard{
-		UserID:   userID,
-		Username: username,
-		Score:    score,
+// New creates a new Leaderboard instance.
+func New(userEmail string, score int) *LeaderboardUser {
+	return &LeaderboardUser{
+		ID:        uuid.New().String(),
+		UserEmail: userEmail,
+		Score:     score,
 	}
 }

@@ -78,7 +78,7 @@ func main() {
 	leaderboardService := leaderboard.NewService(leaderboardRepository)
 
 	// Create resolvers for each aggregate
-	userResolver := user.NewResolver(userService)
+	userResolver := user.NewResolver(userService, leaderboardService)
 	coachResolver := coach.NewResolver(coachService)
 	exerciseResolver := exercise.NewResolver(exerciseService)
 	workoutResolver := workout.NewResolver(workoutService)

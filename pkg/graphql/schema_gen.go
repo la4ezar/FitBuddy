@@ -66,6 +66,12 @@ type ComplexityRoot struct {
 		StartDate   func(childComplexity int) int
 	}
 
+	LeaderboardUser struct {
+		ID        func(childComplexity int) int
+		Score     func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+	}
+
 	Meal struct {
 		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
@@ -114,6 +120,7 @@ type ComplexityRoot struct {
 		GetAllWorkoutsByEmailAndDate   func(childComplexity int, email string, date string) int
 		GetCoachByID                   func(childComplexity int, coachID string) int
 		GetGoals                       func(childComplexity int, email string) int
+		GetLeaderboardUsers            func(childComplexity int) int
 		GetNutritionLogByID            func(childComplexity int, nutritionLogID string) int
 		GetSleepLogByEmailAndDate      func(childComplexity int, userEmail string, date string) int
 		GetUserByID                    func(childComplexity int, userID string) int
@@ -179,6 +186,7 @@ type QueryResolver interface {
 	GetAllNutritionsByEmailAndDate(ctx context.Context, email string, date string) ([]*Nutrition, error)
 	GetAllMeals(ctx context.Context) ([]*Meal, error)
 	GetNutritionLogByID(ctx context.Context, nutritionLogID string) (*Nutrition, error)
+	GetLeaderboardUsers(ctx context.Context) ([]*LeaderboardUser, error)
 }
 
 type executableSchema struct {
@@ -276,6 +284,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Goal.StartDate(childComplexity), true
+
+	case "LeaderboardUser.ID":
+		if e.complexity.LeaderboardUser.ID == nil {
+			break
+		}
+
+		return e.complexity.LeaderboardUser.ID(childComplexity), true
+
+	case "LeaderboardUser.Score":
+		if e.complexity.LeaderboardUser.Score == nil {
+			break
+		}
+
+		return e.complexity.LeaderboardUser.Score(childComplexity), true
+
+	case "LeaderboardUser.UserEmail":
+		if e.complexity.LeaderboardUser.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.LeaderboardUser.UserEmail(childComplexity), true
 
 	case "Meal.ID":
 		if e.complexity.Meal.ID == nil {
@@ -611,6 +640,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetGoals(childComplexity, args["email"].(string)), true
+
+	case "Query.getLeaderboardUsers":
+		if e.complexity.Query.GetLeaderboardUsers == nil {
+			break
+		}
+
+		return e.complexity.Query.GetLeaderboardUsers(childComplexity), true
 
 	case "Query.getNutritionLogByID":
 		if e.complexity.Query.GetNutritionLogByID == nil {
@@ -2020,6 +2056,138 @@ func (ec *executionContext) fieldContext_Goal_EndDate(ctx context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LeaderboardUser_ID(ctx context.Context, field graphql.CollectedField, obj *LeaderboardUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LeaderboardUser_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LeaderboardUser_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LeaderboardUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LeaderboardUser_UserEmail(ctx context.Context, field graphql.CollectedField, obj *LeaderboardUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LeaderboardUser_UserEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LeaderboardUser_UserEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LeaderboardUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LeaderboardUser_Score(ctx context.Context, field graphql.CollectedField, obj *LeaderboardUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LeaderboardUser_Score(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LeaderboardUser_Score(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LeaderboardUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4202,6 +4370,58 @@ func (ec *executionContext) fieldContext_Query_getNutritionLogByID(ctx context.C
 	if fc.Args, err = ec.field_Query_getNutritionLogByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getLeaderboardUsers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getLeaderboardUsers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetLeaderboardUsers(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*LeaderboardUser)
+	fc.Result = res
+	return ec.marshalNLeaderboardUser2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐLeaderboardUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getLeaderboardUsers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_LeaderboardUser_ID(ctx, field)
+			case "UserEmail":
+				return ec.fieldContext_LeaderboardUser_UserEmail(ctx, field)
+			case "Score":
+				return ec.fieldContext_LeaderboardUser_Score(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LeaderboardUser", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -6924,6 +7144,55 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var leaderboardUserImplementors = []string{"LeaderboardUser"}
+
+func (ec *executionContext) _LeaderboardUser(ctx context.Context, sel ast.SelectionSet, obj *LeaderboardUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, leaderboardUserImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LeaderboardUser")
+		case "ID":
+			out.Values[i] = ec._LeaderboardUser_ID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UserEmail":
+			out.Values[i] = ec._LeaderboardUser_UserEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Score":
+			out.Values[i] = ec._LeaderboardUser_Score(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mealImplementors = []string{"Meal"}
 
 func (ec *executionContext) _Meal(ctx context.Context, sel ast.SelectionSet, obj *Meal) graphql.Marshaler {
@@ -7491,6 +7760,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getNutritionLogByID(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getLeaderboardUsers":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getLeaderboardUsers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -8279,6 +8570,60 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNLeaderboardUser2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐLeaderboardUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*LeaderboardUser) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNLeaderboardUser2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐLeaderboardUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNLeaderboardUser2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐLeaderboardUser(ctx context.Context, sel ast.SelectionSet, v *LeaderboardUser) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LeaderboardUser(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNMeal2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐMealᚄ(ctx context.Context, sel ast.SelectionSet, v []*Meal) graphql.Marshaler {

@@ -2,19 +2,22 @@ package user
 
 import (
 	"context"
+	"github.com/FitBuddy/internal/domain/leaderboard"
 	"github.com/FitBuddy/pkg/graphql"
 	"github.com/FitBuddy/pkg/log"
 )
 
 // Resolver handles GraphQL queries and mutations for the User aggregate.
 type Resolver struct {
-	service *Service
+	service            *Service
+	leaderBoardService *leaderboard.Service
 }
 
 // NewResolver creates a new Resolver instance.
-func NewResolver(service *Service) *Resolver {
+func NewResolver(service *Service, leaderboardService *leaderboard.Service) *Resolver {
 	return &Resolver{
-		service: service,
+		service:            service,
+		leaderBoardService: leaderboardService,
 	}
 }
 
@@ -27,6 +30,14 @@ func (r *Resolver) CreateUser(ctx context.Context, email, password string) (*gra
 		return nil, err
 	}
 	log.C(ctx).Infof("Successfully created user with email %q", email)
+
+	log.C(ctx).Infof("Creating record in leaderboard for user with email %q...", email)
+
+	err = r.leaderBoardService.Create(ctx, email, 0)
+	if err != nil {
+		return nil, err
+	}
+	log.C(ctx).Infof("Successfully created record in leaderboard for user with email %q", email)
 
 	gqlUser := &graphql.User{
 		ID:    u.ID,

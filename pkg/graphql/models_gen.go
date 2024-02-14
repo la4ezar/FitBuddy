@@ -22,6 +22,12 @@ type Goal struct {
 	EndDate     string `json:"EndDate"`
 }
 
+type LeaderboardUser struct {
+	ID        string `json:"ID"`
+	UserEmail string `json:"UserEmail"`
+	Score     int    `json:"Score"`
+}
+
 type Meal struct {
 	ID   string `json:"ID"`
 	Name string `json:"Name"`

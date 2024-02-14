@@ -25,23 +25,30 @@ button:hover {
 
 .leaderboard {
     padding: 2px;
-    max-width: 600px;
+    max-width: 800px; /* Adjusted max-width for the leaderboard */
     margin: auto;
     color: white; /* Text color matches the login form */
 }
 
 table {
     border-collapse: collapse;
-    width: 20%;
+    width: 100%; /* Adjusted width to 100% */
     margin: auto;
 }
 
 th, td {
     text-align: left;
-    padding: 8px;
+    padding: 12px; /* Adjusted padding for better spacing */
 }
 
 th {
     background-color: #565d60;
     color: white;
+}
+
+/* Add this to your CSS file */
+.current-user {
+    background-color: #4CAF50; /* Green color */
+    color: white;
+    font-weight: bold; /* Optionally make text bold */
 }

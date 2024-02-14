@@ -181,6 +181,10 @@ func (q queryResolver) GetGoals(ctx context.Context, userEmail string) ([]*graph
 	return q.goalResolver.GetGoals(ctx, userEmail)
 }
 
+func (q queryResolver) GetLeaderboardUsers(ctx context.Context) ([]*graphql.LeaderboardUser, error) {
+	return q.leaderboardResolver.GetLeaderboardUsers(ctx)
+}
+
 func (q queryResolver) GetUserByID(ctx context.Context, userID string) (*graphql.User, error) {
 	//TODO implement me
 	panic("implement me")
