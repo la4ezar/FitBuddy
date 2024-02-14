@@ -4,10 +4,46 @@ body {
     font-family: 'Arial', sans-serif;
 }
 
+
 .nutrition-container {
     text-align: center;
     max-width: 600px;
     margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.nutritions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.nutritions-table th, .nutritions-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.nutritions-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Style for the footer row */
+.nutritions-table tfoot {
+    font-weight: bold;
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Style for the totalCalories cell in the footer row */
+.nutritions-table tfoot td {
+    padding: 12px;
+    text-align: left;
+    border-top: 1px solid #ddd;
 }
 
 h2 {

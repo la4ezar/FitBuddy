@@ -123,9 +123,8 @@ func (m mutationResolver) CreateWorkout(ctx context.Context, email, exercise, da
 	return m.workoutResolver.CreateWorkout(ctx, email, exercise, date, sets, reps, weight)
 }
 
-func (m mutationResolver) CreateNutritionLog(ctx context.Context, userID string, description string, calories int) (*graphql.NutritionLog, error) {
-	//TODO implement me
-	panic("implement me")
+func (m mutationResolver) CreateNutrition(ctx context.Context, email, meal, date string, servingSize, numberOfServings int) (*graphql.Nutrition, error) {
+	return m.nutritionResolver.CreateNutrition(ctx, email, meal, date, servingSize, numberOfServings)
 }
 
 // Mutation missing godoc
@@ -170,6 +169,14 @@ func (q queryResolver) GetAllExercises(ctx context.Context) ([]*graphql.Exercise
 	return q.exerciseResolver.GetAllExercises(ctx)
 }
 
+func (q queryResolver) GetAllNutritionsByEmailAndDate(ctx context.Context, email, date string) ([]*graphql.Nutrition, error) {
+	return q.nutritionResolver.GetAllNutritions(ctx, email, date)
+}
+
+func (q queryResolver) GetAllMeals(ctx context.Context) ([]*graphql.Meal, error) {
+	return q.nutritionResolver.GetAllMeals(ctx)
+}
+
 func (q queryResolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.Goal, error) {
 	return q.goalResolver.GetGoals(ctx, userEmail)
 }
@@ -184,7 +191,7 @@ func (q queryResolver) GetCoachByID(ctx context.Context, coachID string) (*graph
 	panic("implement me")
 }
 
-func (q queryResolver) GetNutritionLogByID(ctx context.Context, nutritionLogID string) (*graphql.NutritionLog, error) {
+func (q queryResolver) GetNutritionLogByID(ctx context.Context, nutritionLogID string) (*graphql.Nutrition, error) {
 	//TODO implement me
 	panic("implement me")
 }

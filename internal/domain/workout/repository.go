@@ -31,6 +31,7 @@ func (r *Repository) CreateWorkout(ctx context.Context, workout *Workout) error 
 	return nil
 }
 
+// GetAllWorkouts retrieves all workouts for user with email and date from the database.
 func (r *Repository) GetAllWorkouts(ctx context.Context, email string, date time.Time) ([]*Workout, error) {
 	rows, err := r.db.QueryContext(ctx, `
         SELECT w.id, u.email, e.name, w.sets, w.reps, w.weight, w.logged_at

@@ -66,29 +66,35 @@ type ComplexityRoot struct {
 		StartDate   func(childComplexity int) int
 	}
 
-	Mutation struct {
-		BookCoach          func(childComplexity int, email string, coachName string) int
-		CreateCoach        func(childComplexity int, name string, specialty string) int
-		CreateGoal         func(childComplexity int, name string, description string, startDate string, endDate string, email string) int
-		CreateNutritionLog func(childComplexity int, userID string, description string, calories int) int
-		CreatePost         func(childComplexity int, title string, content string, email string) int
-		CreateSleepLog     func(childComplexity int, userEmail string, sleepLogTime string, wakeTime string, date string) int
-		CreateUser         func(childComplexity int, email string, password string) int
-		CreateWorkout      func(childComplexity int, email string, exercise string, date string, sets int, reps int, weight float64) int
-		DeleteGoal         func(childComplexity int, goalID string) int
-		DeletePost         func(childComplexity int, postID string) int
-		DeleteSleepLog     func(childComplexity int, sleepLogID string) int
-		LoginUser          func(childComplexity int, email string, password string) int
-		LogoutUser         func(childComplexity int, email string) int
-		UnbookCoach        func(childComplexity int, email string, coachName string) int
+	Meal struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
-	NutritionLog struct {
-		Calories    func(childComplexity int) int
-		Date        func(childComplexity int) int
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		UserID      func(childComplexity int) int
+	Mutation struct {
+		BookCoach       func(childComplexity int, email string, coachName string) int
+		CreateCoach     func(childComplexity int, name string, specialty string) int
+		CreateGoal      func(childComplexity int, name string, description string, startDate string, endDate string, email string) int
+		CreateNutrition func(childComplexity int, email string, meal string, date string, servingSize int, numberOfServings int) int
+		CreatePost      func(childComplexity int, title string, content string, email string) int
+		CreateSleepLog  func(childComplexity int, userEmail string, sleepLogTime string, wakeTime string, date string) int
+		CreateUser      func(childComplexity int, email string, password string) int
+		CreateWorkout   func(childComplexity int, email string, exercise string, date string, sets int, reps int, weight float64) int
+		DeleteGoal      func(childComplexity int, goalID string) int
+		DeletePost      func(childComplexity int, postID string) int
+		DeleteSleepLog  func(childComplexity int, sleepLogID string) int
+		LoginUser       func(childComplexity int, email string, password string) int
+		LogoutUser      func(childComplexity int, email string) int
+		UnbookCoach     func(childComplexity int, email string, coachName string) int
+	}
+
+	Nutrition struct {
+		Calories  func(childComplexity int) int
+		Date      func(childComplexity int) int
+		Grams     func(childComplexity int) int
+		ID        func(childComplexity int) int
+		MealName  func(childComplexity int) int
+		UserEmail func(childComplexity int) int
 	}
 
 	Post struct {
@@ -100,17 +106,19 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetAllCoaches                func(childComplexity int) int
-		GetAllExercises              func(childComplexity int) int
-		GetAllPosts                  func(childComplexity int) int
-		GetAllWorkoutsByEmailAndDate func(childComplexity int, email string, date string) int
-		GetCoachByID                 func(childComplexity int, coachID string) int
-		GetGoals                     func(childComplexity int, email string) int
-		GetNutritionLogByID          func(childComplexity int, nutritionLogID string) int
-		GetSleepLogByEmailAndDate    func(childComplexity int, userEmail string, date string) int
-		GetUserByID                  func(childComplexity int, userID string) int
-		IsCoachBooked                func(childComplexity int, coachName string) int
-		IsCoachBookedByUser          func(childComplexity int, coachName string, userEmail string) int
+		GetAllCoaches                  func(childComplexity int) int
+		GetAllExercises                func(childComplexity int) int
+		GetAllMeals                    func(childComplexity int) int
+		GetAllNutritionsByEmailAndDate func(childComplexity int, email string, date string) int
+		GetAllPosts                    func(childComplexity int) int
+		GetAllWorkoutsByEmailAndDate   func(childComplexity int, email string, date string) int
+		GetCoachByID                   func(childComplexity int, coachID string) int
+		GetGoals                       func(childComplexity int, email string) int
+		GetNutritionLogByID            func(childComplexity int, nutritionLogID string) int
+		GetSleepLogByEmailAndDate      func(childComplexity int, userEmail string, date string) int
+		GetUserByID                    func(childComplexity int, userID string) int
+		IsCoachBooked                  func(childComplexity int, coachName string) int
+		IsCoachBookedByUser            func(childComplexity int, coachName string, userEmail string) int
 	}
 
 	SleepLog struct {
@@ -155,7 +163,7 @@ type MutationResolver interface {
 	CreateSleepLog(ctx context.Context, userEmail string, sleepLogTime string, wakeTime string, date string) (*SleepLog, error)
 	DeleteSleepLog(ctx context.Context, sleepLogID string) (bool, error)
 	CreateWorkout(ctx context.Context, email string, exercise string, date string, sets int, reps int, weight float64) (*Workout, error)
-	CreateNutritionLog(ctx context.Context, userID string, description string, calories int) (*NutritionLog, error)
+	CreateNutrition(ctx context.Context, email string, meal string, date string, servingSize int, numberOfServings int) (*Nutrition, error)
 }
 type QueryResolver interface {
 	GetAllCoaches(ctx context.Context) ([]*Coach, error)
@@ -168,7 +176,9 @@ type QueryResolver interface {
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 	GetCoachByID(ctx context.Context, coachID string) (*Coach, error)
 	GetAllWorkoutsByEmailAndDate(ctx context.Context, email string, date string) ([]*Workout, error)
-	GetNutritionLogByID(ctx context.Context, nutritionLogID string) (*NutritionLog, error)
+	GetAllNutritionsByEmailAndDate(ctx context.Context, email string, date string) ([]*Nutrition, error)
+	GetAllMeals(ctx context.Context) ([]*Meal, error)
+	GetNutritionLogByID(ctx context.Context, nutritionLogID string) (*Nutrition, error)
 }
 
 type executableSchema struct {
@@ -267,6 +277,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Goal.StartDate(childComplexity), true
 
+	case "Meal.ID":
+		if e.complexity.Meal.ID == nil {
+			break
+		}
+
+		return e.complexity.Meal.ID(childComplexity), true
+
+	case "Meal.Name":
+		if e.complexity.Meal.Name == nil {
+			break
+		}
+
+		return e.complexity.Meal.Name(childComplexity), true
+
 	case "Mutation.bookCoach":
 		if e.complexity.Mutation.BookCoach == nil {
 			break
@@ -303,17 +327,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateGoal(childComplexity, args["name"].(string), args["description"].(string), args["startDate"].(string), args["endDate"].(string), args["email"].(string)), true
 
-	case "Mutation.createNutritionLog":
-		if e.complexity.Mutation.CreateNutritionLog == nil {
+	case "Mutation.createNutrition":
+		if e.complexity.Mutation.CreateNutrition == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createNutritionLog_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createNutrition_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateNutritionLog(childComplexity, args["userID"].(string), args["description"].(string), args["calories"].(int)), true
+		return e.complexity.Mutation.CreateNutrition(childComplexity, args["email"].(string), args["meal"].(string), args["date"].(string), args["servingSize"].(int), args["numberOfServings"].(int)), true
 
 	case "Mutation.createPost":
 		if e.complexity.Mutation.CreatePost == nil {
@@ -435,40 +459,47 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UnbookCoach(childComplexity, args["email"].(string), args["coachName"].(string)), true
 
-	case "NutritionLog.Calories":
-		if e.complexity.NutritionLog.Calories == nil {
+	case "Nutrition.Calories":
+		if e.complexity.Nutrition.Calories == nil {
 			break
 		}
 
-		return e.complexity.NutritionLog.Calories(childComplexity), true
+		return e.complexity.Nutrition.Calories(childComplexity), true
 
-	case "NutritionLog.Date":
-		if e.complexity.NutritionLog.Date == nil {
+	case "Nutrition.Date":
+		if e.complexity.Nutrition.Date == nil {
 			break
 		}
 
-		return e.complexity.NutritionLog.Date(childComplexity), true
+		return e.complexity.Nutrition.Date(childComplexity), true
 
-	case "NutritionLog.Description":
-		if e.complexity.NutritionLog.Description == nil {
+	case "Nutrition.Grams":
+		if e.complexity.Nutrition.Grams == nil {
 			break
 		}
 
-		return e.complexity.NutritionLog.Description(childComplexity), true
+		return e.complexity.Nutrition.Grams(childComplexity), true
 
-	case "NutritionLog.ID":
-		if e.complexity.NutritionLog.ID == nil {
+	case "Nutrition.ID":
+		if e.complexity.Nutrition.ID == nil {
 			break
 		}
 
-		return e.complexity.NutritionLog.ID(childComplexity), true
+		return e.complexity.Nutrition.ID(childComplexity), true
 
-	case "NutritionLog.UserID":
-		if e.complexity.NutritionLog.UserID == nil {
+	case "Nutrition.MealName":
+		if e.complexity.Nutrition.MealName == nil {
 			break
 		}
 
-		return e.complexity.NutritionLog.UserID(childComplexity), true
+		return e.complexity.Nutrition.MealName(childComplexity), true
+
+	case "Nutrition.UserEmail":
+		if e.complexity.Nutrition.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.Nutrition.UserEmail(childComplexity), true
 
 	case "Post.Content":
 		if e.complexity.Post.Content == nil {
@@ -518,6 +549,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetAllExercises(childComplexity), true
+
+	case "Query.getAllMeals":
+		if e.complexity.Query.GetAllMeals == nil {
+			break
+		}
+
+		return e.complexity.Query.GetAllMeals(childComplexity), true
+
+	case "Query.getAllNutritionsByEmailAndDate":
+		if e.complexity.Query.GetAllNutritionsByEmailAndDate == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAllNutritionsByEmailAndDate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllNutritionsByEmailAndDate(childComplexity, args["email"].(string), args["date"].(string)), true
 
 	case "Query.getAllPosts":
 		if e.complexity.Query.GetAllPosts == nil {
@@ -949,36 +999,54 @@ func (ec *executionContext) field_Mutation_createGoal_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createNutritionLog_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createNutrition_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["userID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["userID"] = arg0
+	args["email"] = arg0
 	var arg1 string
-	if tmp, ok := rawArgs["description"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+	if tmp, ok := rawArgs["meal"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("meal"))
 		arg1, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["description"] = arg1
-	var arg2 int
-	if tmp, ok := rawArgs["calories"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("calories"))
-		arg2, err = ec.unmarshalNInt2int(ctx, tmp)
+	args["meal"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["calories"] = arg2
+	args["date"] = arg2
+	var arg3 int
+	if tmp, ok := rawArgs["servingSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("servingSize"))
+		arg3, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["servingSize"] = arg3
+	var arg4 int
+	if tmp, ok := rawArgs["numberOfServings"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numberOfServings"))
+		arg4, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["numberOfServings"] = arg4
 	return args, nil
 }
 
@@ -1087,7 +1155,7 @@ func (ec *executionContext) field_Mutation_createWorkout_args(ctx context.Contex
 	var arg0 string
 	if tmp, ok := rawArgs["email"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1261,6 +1329,30 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAllNutritionsByEmailAndDate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["email"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg1
 	return args, nil
 }
 
@@ -1923,6 +2015,94 @@ func (ec *executionContext) _Goal_EndDate(ctx context.Context, field graphql.Col
 func (ec *executionContext) fieldContext_Goal_EndDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Meal_ID(ctx context.Context, field graphql.CollectedField, obj *Meal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Meal_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Meal_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Meal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Meal_Name(ctx context.Context, field graphql.CollectedField, obj *Meal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Meal_Name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Meal_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Meal",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2700,8 +2880,8 @@ func (ec *executionContext) fieldContext_Mutation_createWorkout(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createNutritionLog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createNutritionLog(ctx, field)
+func (ec *executionContext) _Mutation_createNutrition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createNutrition(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2714,7 +2894,7 @@ func (ec *executionContext) _Mutation_createNutritionLog(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateNutritionLog(rctx, fc.Args["userID"].(string), fc.Args["description"].(string), fc.Args["calories"].(int))
+		return ec.resolvers.Mutation().CreateNutrition(rctx, fc.Args["email"].(string), fc.Args["meal"].(string), fc.Args["date"].(string), fc.Args["servingSize"].(int), fc.Args["numberOfServings"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2723,12 +2903,12 @@ func (ec *executionContext) _Mutation_createNutritionLog(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*NutritionLog)
+	res := resTmp.(*Nutrition)
 	fc.Result = res
-	return ec.marshalONutritionLog2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutritionLog(ctx, field.Selections, res)
+	return ec.marshalONutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createNutritionLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createNutrition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2737,17 +2917,19 @@ func (ec *executionContext) fieldContext_Mutation_createNutritionLog(ctx context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "ID":
-				return ec.fieldContext_NutritionLog_ID(ctx, field)
-			case "UserID":
-				return ec.fieldContext_NutritionLog_UserID(ctx, field)
-			case "Description":
-				return ec.fieldContext_NutritionLog_Description(ctx, field)
+				return ec.fieldContext_Nutrition_ID(ctx, field)
+			case "UserEmail":
+				return ec.fieldContext_Nutrition_UserEmail(ctx, field)
+			case "MealName":
+				return ec.fieldContext_Nutrition_MealName(ctx, field)
+			case "Grams":
+				return ec.fieldContext_Nutrition_Grams(ctx, field)
 			case "Calories":
-				return ec.fieldContext_NutritionLog_Calories(ctx, field)
+				return ec.fieldContext_Nutrition_Calories(ctx, field)
 			case "Date":
-				return ec.fieldContext_NutritionLog_Date(ctx, field)
+				return ec.fieldContext_Nutrition_Date(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type NutritionLog", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Nutrition", field.Name)
 		},
 	}
 	defer func() {
@@ -2757,15 +2939,15 @@ func (ec *executionContext) fieldContext_Mutation_createNutritionLog(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createNutritionLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createNutrition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _NutritionLog_ID(ctx context.Context, field graphql.CollectedField, obj *NutritionLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NutritionLog_ID(ctx, field)
+func (ec *executionContext) _Nutrition_ID(ctx context.Context, field graphql.CollectedField, obj *Nutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Nutrition_ID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2795,9 +2977,9 @@ func (ec *executionContext) _NutritionLog_ID(ctx context.Context, field graphql.
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_NutritionLog_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Nutrition_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "NutritionLog",
+		Object:     "Nutrition",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2808,8 +2990,8 @@ func (ec *executionContext) fieldContext_NutritionLog_ID(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _NutritionLog_UserID(ctx context.Context, field graphql.CollectedField, obj *NutritionLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NutritionLog_UserID(ctx, field)
+func (ec *executionContext) _Nutrition_UserEmail(ctx context.Context, field graphql.CollectedField, obj *Nutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Nutrition_UserEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2822,51 +3004,7 @@ func (ec *executionContext) _NutritionLog_UserID(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NutritionLog_UserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NutritionLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _NutritionLog_Description(ctx context.Context, field graphql.CollectedField, obj *NutritionLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NutritionLog_Description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
+		return obj.UserEmail, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2883,9 +3021,9 @@ func (ec *executionContext) _NutritionLog_Description(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_NutritionLog_Description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Nutrition_UserEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "NutritionLog",
+		Object:     "Nutrition",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2896,8 +3034,96 @@ func (ec *executionContext) fieldContext_NutritionLog_Description(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _NutritionLog_Calories(ctx context.Context, field graphql.CollectedField, obj *NutritionLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NutritionLog_Calories(ctx, field)
+func (ec *executionContext) _Nutrition_MealName(ctx context.Context, field graphql.CollectedField, obj *Nutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Nutrition_MealName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MealName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Nutrition_MealName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Nutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Nutrition_Grams(ctx context.Context, field graphql.CollectedField, obj *Nutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Nutrition_Grams(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Grams, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Nutrition_Grams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Nutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Nutrition_Calories(ctx context.Context, field graphql.CollectedField, obj *Nutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Nutrition_Calories(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2927,9 +3153,9 @@ func (ec *executionContext) _NutritionLog_Calories(ctx context.Context, field gr
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_NutritionLog_Calories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Nutrition_Calories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "NutritionLog",
+		Object:     "Nutrition",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2940,8 +3166,8 @@ func (ec *executionContext) fieldContext_NutritionLog_Calories(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _NutritionLog_Date(ctx context.Context, field graphql.CollectedField, obj *NutritionLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NutritionLog_Date(ctx, field)
+func (ec *executionContext) _Nutrition_Date(ctx context.Context, field graphql.CollectedField, obj *Nutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Nutrition_Date(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2971,9 +3197,9 @@ func (ec *executionContext) _NutritionLog_Date(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_NutritionLog_Date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Nutrition_Date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "NutritionLog",
+		Object:     "Nutrition",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3795,6 +4021,125 @@ func (ec *executionContext) fieldContext_Query_getAllWorkoutsByEmailAndDate(ctx 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getAllNutritionsByEmailAndDate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllNutritionsByEmailAndDate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllNutritionsByEmailAndDate(rctx, fc.Args["email"].(string), fc.Args["date"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Nutrition)
+	fc.Result = res
+	return ec.marshalNNutrition2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutritionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllNutritionsByEmailAndDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Nutrition_ID(ctx, field)
+			case "UserEmail":
+				return ec.fieldContext_Nutrition_UserEmail(ctx, field)
+			case "MealName":
+				return ec.fieldContext_Nutrition_MealName(ctx, field)
+			case "Grams":
+				return ec.fieldContext_Nutrition_Grams(ctx, field)
+			case "Calories":
+				return ec.fieldContext_Nutrition_Calories(ctx, field)
+			case "Date":
+				return ec.fieldContext_Nutrition_Date(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Nutrition", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAllNutritionsByEmailAndDate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAllMeals(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllMeals(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllMeals(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Meal)
+	fc.Result = res
+	return ec.marshalNMeal2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐMealᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllMeals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Meal_ID(ctx, field)
+			case "Name":
+				return ec.fieldContext_Meal_Name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Meal", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getNutritionLogByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getNutritionLogByID(ctx, field)
 	if err != nil {
@@ -3818,9 +4163,9 @@ func (ec *executionContext) _Query_getNutritionLogByID(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*NutritionLog)
+	res := resTmp.(*Nutrition)
 	fc.Result = res
-	return ec.marshalONutritionLog2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutritionLog(ctx, field.Selections, res)
+	return ec.marshalONutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getNutritionLogByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3832,17 +4177,19 @@ func (ec *executionContext) fieldContext_Query_getNutritionLogByID(ctx context.C
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "ID":
-				return ec.fieldContext_NutritionLog_ID(ctx, field)
-			case "UserID":
-				return ec.fieldContext_NutritionLog_UserID(ctx, field)
-			case "Description":
-				return ec.fieldContext_NutritionLog_Description(ctx, field)
+				return ec.fieldContext_Nutrition_ID(ctx, field)
+			case "UserEmail":
+				return ec.fieldContext_Nutrition_UserEmail(ctx, field)
+			case "MealName":
+				return ec.fieldContext_Nutrition_MealName(ctx, field)
+			case "Grams":
+				return ec.fieldContext_Nutrition_Grams(ctx, field)
 			case "Calories":
-				return ec.fieldContext_NutritionLog_Calories(ctx, field)
+				return ec.fieldContext_Nutrition_Calories(ctx, field)
 			case "Date":
-				return ec.fieldContext_NutritionLog_Date(ctx, field)
+				return ec.fieldContext_Nutrition_Date(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type NutritionLog", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Nutrition", field.Name)
 		},
 	}
 	defer func() {
@@ -6577,6 +6924,50 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var mealImplementors = []string{"Meal"}
+
+func (ec *executionContext) _Meal(ctx context.Context, sel ast.SelectionSet, obj *Meal) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mealImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Meal")
+		case "ID":
+			out.Values[i] = ec._Meal_ID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Name":
+			out.Values[i] = ec._Meal_Name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -6663,9 +7054,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createWorkout(ctx, field)
 			})
-		case "createNutritionLog":
+		case "createNutrition":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createNutritionLog(ctx, field)
+				return ec._Mutation_createNutrition(ctx, field)
 			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -6690,39 +7081,44 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
-var nutritionLogImplementors = []string{"NutritionLog"}
+var nutritionImplementors = []string{"Nutrition"}
 
-func (ec *executionContext) _NutritionLog(ctx context.Context, sel ast.SelectionSet, obj *NutritionLog) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, nutritionLogImplementors)
+func (ec *executionContext) _Nutrition(ctx context.Context, sel ast.SelectionSet, obj *Nutrition) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, nutritionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("NutritionLog")
+			out.Values[i] = graphql.MarshalString("Nutrition")
 		case "ID":
-			out.Values[i] = ec._NutritionLog_ID(ctx, field, obj)
+			out.Values[i] = ec._Nutrition_ID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "UserID":
-			out.Values[i] = ec._NutritionLog_UserID(ctx, field, obj)
+		case "UserEmail":
+			out.Values[i] = ec._Nutrition_UserEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "Description":
-			out.Values[i] = ec._NutritionLog_Description(ctx, field, obj)
+		case "MealName":
+			out.Values[i] = ec._Nutrition_MealName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Grams":
+			out.Values[i] = ec._Nutrition_Grams(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "Calories":
-			out.Values[i] = ec._NutritionLog_Calories(ctx, field, obj)
+			out.Values[i] = ec._Nutrition_Calories(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "Date":
-			out.Values[i] = ec._NutritionLog_Date(ctx, field, obj)
+			out.Values[i] = ec._Nutrition_Date(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7029,6 +7425,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getAllWorkoutsByEmailAndDate(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAllNutritionsByEmailAndDate":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllNutritionsByEmailAndDate(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAllMeals":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllMeals(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -7841,6 +8281,114 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) marshalNMeal2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐMealᚄ(ctx context.Context, sel ast.SelectionSet, v []*Meal) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMeal2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐMeal(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNMeal2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐMeal(ctx context.Context, sel ast.SelectionSet, v *Meal) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Meal(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNNutrition2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutritionᚄ(ctx context.Context, sel ast.SelectionSet, v []*Nutrition) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNNutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNNutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx context.Context, sel ast.SelectionSet, v *Nutrition) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Nutrition(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPost2ᚕᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*Post) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -8343,11 +8891,11 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalONutritionLog2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutritionLog(ctx context.Context, sel ast.SelectionSet, v *NutritionLog) graphql.Marshaler {
+func (ec *executionContext) marshalONutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx context.Context, sel ast.SelectionSet, v *Nutrition) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._NutritionLog(ctx, sel, v)
+	return ec._Nutrition(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPost2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐPost(ctx context.Context, sel ast.SelectionSet, v *Post) graphql.Marshaler {

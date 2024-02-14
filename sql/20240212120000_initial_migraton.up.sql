@@ -68,6 +68,7 @@ CREATE TABLE nutrition
     id        uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
     user_id   uuid      NOT NULL,
     meal_id   uuid      NOT NULL,
+    grams     int       NOT NULL,
     logged_at timestamp NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) on DELETE CASCADE,
     FOREIGN KEY (meal_id) REFERENCES meals (id) on DELETE CASCADE

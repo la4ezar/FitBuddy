@@ -5,24 +5,29 @@ import (
 	"time"
 )
 
-// Log represents a nutrition log entry in the application.
-type Log struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"userId"`
-	Meal        string    `json:"meal"`
-	Description string    `json:"description"`
-	Calories    int       `json:"calories"`
-	LoggedAt    time.Time `json:"loggedAt"`
+// Nutrition represents a nutrition entry in the application.
+type Nutrition struct {
+	ID        string    `json:"id"`
+	UserEmail string    `json:"userEmail"`
+	MealName  string    `json:"mealName"`
+	Grams     int       `json:"grams"`
+	Calories  int       `json:"calories"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
-// NewLog creates a new NutritionLog instance.
-func NewLog(userID, meal, description string, calories int, loggedAt time.Time) *Log {
-	return &Log{
-		ID:          uuid.New().String(),
-		UserID:      userID,
-		Meal:        meal,
-		Description: description,
-		Calories:    calories,
-		LoggedAt:    loggedAt,
+// NewNutrition creates a new Nutrition instance.
+func NewNutrition(userEmail, mealName string, grams int, createdAt time.Time) *Nutrition {
+	return &Nutrition{
+		ID:        uuid.New().String(),
+		UserEmail: userEmail,
+		MealName:  mealName,
+		Grams:     grams,
+		CreatedAt: createdAt,
 	}
+}
+
+// Meal represents a Meal entry in the application.
+type Meal struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }

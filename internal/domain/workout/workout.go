@@ -17,11 +17,11 @@ type Workout struct {
 }
 
 // NewWorkout creates a new Workout instance.
-func NewWorkout(userID, exercise string, sets, reps int, weight float64, createdAt time.Time) *Workout {
+func NewWorkout(userEmail, exerciseName string, sets, reps int, weight float64, createdAt time.Time) *Workout {
 	return &Workout{
 		ID:           uuid.New().String(),
-		UserEmail:    userID,
-		ExerciseName: exercise,
+		UserEmail:    userEmail,
+		ExerciseName: exerciseName,
 		Sets:         sets,
 		Reps:         reps,
 		Weight:       weight,

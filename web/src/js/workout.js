@@ -50,10 +50,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             return response.json();
         })
-        .then(exercises => {
-            console.log(exercises.data.getAllExercises);
+        .then(data => {
+            console.log(data.data.getAllExercises);
             // Populate the datalist with exercise options
-            exercises.data.getAllExercises.forEach(exercise => {
+            data.data.getAllExercises.forEach(exercise => {
                 const option = document.createElement('option');
                 option.value = exercise.Name; // Replace 'name' with the actual property of your exercise object
                 exerciseDatalist.appendChild(option);
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
             workoutsTable.className = 'workouts-table';
 
             const headerRow = workoutsTable.createTHead().insertRow();
-            const headerColumns = ['Exercise', 'Reps', 'Sets', 'Weight', 'Date'];
+            const headerColumns = ['Exercise', 'Reps', 'Sets', 'Weight', 'Time'];
 
             headerColumns.forEach(columnName => {
                 const headerCell = document.createElement('th');
@@ -215,14 +215,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 weightCell.textContent = workout.Weight;
 
                 const dateCell = row.insertCell();
-                dateCell.textContent = new Date(workout.Date).toLocaleString();
+                dateCell.textContent = new Date(workout.Date).toLocaleTimeString();
             });
 
 
         } else {
-            const noPostsMessage = document.createElement('p');
-            noPostsMessage.textContent = 'No workouts available.';
-            workoutsListContainer.appendChild(noPostsMessage);
+            // If there are no posts, display a message
+            const noWorkoutsMessage = document.createElement('p');
+            noWorkoutsMessage.textContent = 'No workouts available.';
+            workoutsListContainer.appendChild(noWorkoutsMessage);
         }
     }
 });

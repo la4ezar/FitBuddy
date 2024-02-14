@@ -22,15 +22,21 @@ type Goal struct {
 	EndDate     string `json:"EndDate"`
 }
 
+type Meal struct {
+	ID   string `json:"ID"`
+	Name string `json:"Name"`
+}
+
 type Mutation struct {
 }
 
-type NutritionLog struct {
-	ID          string `json:"ID"`
-	UserID      string `json:"UserID"`
-	Description string `json:"Description"`
-	Calories    int    `json:"Calories"`
-	Date        string `json:"Date"`
+type Nutrition struct {
+	ID        string `json:"ID"`
+	UserEmail string `json:"UserEmail"`
+	MealName  string `json:"MealName"`
+	Grams     int    `json:"Grams"`
+	Calories  int    `json:"Calories"`
+	Date      string `json:"Date"`
 }
 
 type Post struct {

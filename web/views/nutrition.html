@@ -39,19 +39,13 @@
     <form id="nutrition-form">
         <label for="meal">Meal:</label>
         <input list="mealList" id="meal" name="meal" required>
-        <datalist id="mealList">
-            <option value="Chicken">
-            <option value="Beef">
-            <option value="Pork">
-            <option value="Rice">
-        </datalist>
+        <datalist id="mealList"></datalist>
 
         <label for="serving-size">Serving size:</label>
         <input list="servingSizeList" id="serving-size" name="serving-size" required>
         <datalist id="servingSizeList">
-            <option value="gram">
-            <option value="oz">
-            <option value="ml">
+            <option value="1 gram">
+            <option value="100 grams">
         </datalist>
 
         <label for="number-of-servings">Number of servings:</label>
@@ -59,6 +53,10 @@
 
         <button type="submit">Track Meal</button>
     </form>
+    <div class="nutrition-display">
+        <h1>All Nutritions</h1>
+        <div class="nutritions-list"></div>
+    </div>
 </div>
 
 <script src="../src/js/authorization.js" type="module" defer></script>
