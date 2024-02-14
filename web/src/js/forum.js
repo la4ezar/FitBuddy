@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         `;
 
-        // Make the GraphQL request to create a new post
         fetch(graphqlEndpoint, {
             method: 'POST',
             headers: {
@@ -98,12 +97,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function displayPosts(posts) {
         const postsListContainer = document.querySelector('.posts-list');
 
-        // Clear the existing posts
         postsListContainer.innerHTML = '';
 
-        // Check if the 'posts' array is defined and not empty before iterating
         if (Array.isArray(posts) && posts.length > 0) {
-            // Display each post
             posts.forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.className = 'post';
@@ -135,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 postsListContainer.appendChild(postElement);
             });
         } else {
-            // If there are no posts, display a message
             const noPostsMessage = document.createElement('p');
             noPostsMessage.textContent = 'No posts available.';
             postsListContainer.appendChild(noPostsMessage);

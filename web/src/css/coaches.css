@@ -27,12 +27,12 @@ button:hover, .coaches-container button:hover {
     padding: 2px;
     max-width: 600px;
     margin: auto;
-    color: white; /* Text color matches the login form */
+    color: white;
 }
 
 table {
     border-collapse: collapse;
-    width: 100%; /* Adjust the width as needed */
+    width: 100%;
     margin: auto;
 }
 

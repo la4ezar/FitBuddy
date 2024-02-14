@@ -4,7 +4,7 @@ function isLoggedIn() {
 }
 
 function redirectToLogin() {
-    window.location.href = 'login.html';  // Redirect to the login page
+    window.location.href = 'login.html';
 }
 
 if (!isLoggedIn() && !window.location.href.includes('login.html') && !window.location.href.includes('registration.html')) {

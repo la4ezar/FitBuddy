@@ -5,7 +5,7 @@ body {
 }
 
 .dashboard-container {
-    background-color: #4CAF50; /* Match the login form background color */
+    background-color: #4CAF50;
     text-align: center;
 }
 
@@ -54,8 +54,8 @@ body {
 .welcome-message {
     max-width: 600px;
     margin: 20px auto;
-    padding: 0 0 10px 0;
-    color: white; /* Text color matches the login form */
+    padding: 0 0 10px;
+    color: white;
 }
 
 h1 {
@@ -64,7 +64,7 @@ h1 {
 }
 
 #username {
-    color: #45a049; /* Match the login form submit button color */
+    color: #45a049;
 }
 
 .motivational-sentence {
@@ -73,142 +73,76 @@ h1 {
 }
 
 .log-out-button {
-    display: inline-block;
-    margin-left: 10px;
-}
-
-.log-out-button {
     display: block;
     color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-    background-color: #45a049; /* Match the login form submit button color */
+    background-color: #45a049;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
 .log-out-button:hover {
-    background-color: #39843d; /* Darker shade on hover */
+    background-color: #39843d;
 }
 
-.workouts-list {
+.workouts-list,
+.sleep-list {
     max-width: 600px;
     margin: auto;
 }
 
-.workout-display {
+.workout-display,
+.workout-container,
+.sleep-container,
+.nutrition-container {
     text-align: center;
     max-width: 600px;
+    margin: 20px auto;
 }
 
-.workouts-list {
-    list-style-type: none;
-    padding: 0;
-}
-
-.workout-item {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.workout-item h3 {
-    color: #4CAF50;
-    margin-bottom: 5px;
-}
-
-.workout-item p {
-    margin: 0;
-    color: #333;
-}
-.workouts-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.workouts-table th, .workouts-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.workouts-table th {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.workouts-list {
+.workouts-list,
+.workouts-table,
+.nutrition-container,
+.nutritions-table {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-
-.workout-container {
-    text-align: center;
-    max-width: 600px;
-    margin: 20px auto;
-    background-color: #fff;
-    padding: 5px 20px 20px 20px;
-    border-radius: 8px;
-}
-
-.sleep-container {
-    text-align: center;
-    max-width: 600px;
-    margin: 20px auto;
-}
-
-.sleep-list {
-    text-align: center;
-    display: block;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-}
-
-.sleep-item {
-    border: 1px solid #ddd;
-    padding: 16px;
-    margin: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.nutrition-container {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto 50px auto;
-    background-color: #fff;
-    border-radius: 8px;
-}
-
+.workouts-table,
 .nutritions-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-.nutritions-table th, .nutritions-table td {
+.workouts-table th,
+.nutritions-table th {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.workouts-table td,
+.nutritions-table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-.nutritions-table th {
-    background-color: #4CAF50;
-    color: white;
-}
-
+.workouts-table tfoot,
 .nutritions-table tfoot {
     font-weight: bold;
     background-color: #4CAF50;
     color: white;
 }
 
+.workouts-table tfoot td,
 .nutritions-table tfoot td {
     padding: 12px;
     text-align: left;

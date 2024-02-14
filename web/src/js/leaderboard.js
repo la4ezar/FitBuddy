@@ -10,10 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     `;
 
-    // Get reference to the leaderboard container
     const leaderboardContainer = document.querySelector('.leaderboard-container');
 
-    // Fetch data from GraphQL endpoint
     fetch(graphqlEndpoint, {
         method: 'POST',
         headers: {
@@ -28,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return response.json();
         })
         .then(data => {
-            // Populate the container with data
             displayLeaderboard(leaderboardContainer, data.data.getLeaderboardUsers);
         })
         .catch(error => {
@@ -37,18 +34,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     function displayLeaderboard(leaderboardContainer, leaderboardUsers) {
-        // Clear the existing content
         leaderboardContainer.innerHTML = '';
 
         const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
 
-        // Check if the 'users' array is defined and not empty before iterating
         if (Array.isArray(leaderboardUsers) && leaderboardUsers.length > 0) {
-            // Create a table and append it to the container
             const leaderboardTable = document.createElement('table');
             leaderboardTable.classList.add('leaderboard-table');
 
-            // Create table headers
             const headerRow = leaderboardTable.createTHead().insertRow();
             const headerColumns = ['User', 'Score'];
 
@@ -58,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 headerRow.appendChild(th);
             });
 
-            // Display each user in a table row
             leaderboardUsers.forEach(user => {
                 const row = leaderboardTable.insertRow();
 
@@ -68,16 +60,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 const scoreCell = row.insertCell();
                 scoreCell.textContent = user.Score;
 
-                // Highlight the row for the currently logged-in user
                 if (user.UserEmail === emailCookie) {
                     row.classList.add('current-user');
                 }
             });
 
-            // Append the table to the container
             leaderboardContainer.appendChild(leaderboardTable);
         } else {
-            // If there are no users, display a message
             const noUsersMessage = document.createElement('p');
             noUsersMessage.textContent = 'No users available.';
             leaderboardContainer.appendChild(noUsersMessage);

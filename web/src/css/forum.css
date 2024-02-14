@@ -56,7 +56,7 @@ button:hover {
     padding: 2px;
     max-width: 600px;
     margin: auto;
-    color: white; /* Text color matches the login form */
+    color: white;
 }
 
 .posts-list {

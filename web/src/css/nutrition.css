@@ -32,14 +32,12 @@ body {
     color: white;
 }
 
-/* Style for the footer row */
 .nutritions-table tfoot {
     font-weight: bold;
     background-color: #4CAF50;
     color: white;
 }
 
-/* Style for the totalCalories cell in the footer row */
 .nutritions-table tfoot td {
     padding: 12px;
     text-align: left;
@@ -112,5 +110,5 @@ button:hover {
     padding: 2px;
     max-width: 600px;
     margin: auto;
-    color: white; /* Text color matches the login form */
+    color: white;
 }

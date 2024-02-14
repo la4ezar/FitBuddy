@@ -1,34 +1,32 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const graphqlEndpoint = 'http://localhost:8080/graphql';
     const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
     if (!email) {
         return
     }
 
     let currentDate = new Date();
+    currentDate.setHours(+currentDate.getHours() + 2);
 
-    // Display the current date
+
     document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
 
-    // Add event listener for the Previous Date button
     document.querySelector('.prev-date').addEventListener('click', function () {
         currentDate.setDate(currentDate.getDate() - 1);
         updateCurrentDate();
         fetchAllWorkouts(currentDate.toISOString());
     });
 
-    // Add event listener for the Next Date button
     document.querySelector('.next-date').addEventListener('click', function () {
         currentDate.setDate(currentDate.getDate() + 1);
         updateCurrentDate();
         fetchAllWorkouts(currentDate.toISOString());
     });
 
-    // Function to update the displayed current date
     function updateCurrentDate() {
         document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
     }
 
-    const graphqlEndpoint = 'http://localhost:8080/graphql';
     const gqlQuery = `
             query {
                 getAllExercises() {
@@ -37,10 +35,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         `;
-    // Get reference to the exercise input and datalist
     const exerciseDatalist = document.getElementById('exerciseList');
 
-    // Fetch the exercise list from the backend
     fetch(graphqlEndpoint, {
         method: 'POST',
         headers: {
@@ -56,10 +52,9 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             console.log(data.data.getAllExercises);
-            // Populate the datalist with exercise options
             data.data.getAllExercises.forEach(exercise => {
                 const option = document.createElement('option');
-                option.value = exercise.Name; // Replace 'name' with the actual property of your exercise object
+                option.value = exercise.Name;
                 exerciseDatalist.appendChild(option);
             });
         })
@@ -70,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchAllWorkouts(currentDate.toISOString())
 
-    // Add event listener for the workout form submission
     document.getElementById('workout-form').addEventListener('submit', async function (event) {
         event.preventDefault();
 
@@ -85,9 +79,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const weight = parseFloat(weightInput.value);
         const date = currentDate.toISOString();
 
-        const graphqlEndpoint = 'http://localhost:8080/graphql';
-
-        // GraphQL mutation to create a workout
         const gqlMutation = `
             mutation {
                 createWorkout(email: "${email}", exercise: "${exercise}", date: "${date}", sets: ${sets}, reps: ${reps}, weight: ${weight}) {
@@ -122,8 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function fetchAllWorkouts(date) {
-        const graphqlEndpoint = 'http://localhost:8080/graphql';
-
         const gqlQuery = `
             query {
                 getAllWorkoutsByEmailAndDate(email: "${email}", date: "${date}") {
@@ -138,7 +127,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         `;
 
-        // Make the GraphQL request to fetch all posts
         fetch(graphqlEndpoint, {
             method: 'POST',
             headers: {
@@ -168,13 +156,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function displayWorkouts(workouts) {
         const workoutsListContainer = document.querySelector('.workouts-list');
 
-        // Clear the existing posts
         workoutsListContainer.innerHTML = '';
 
-        // Check if the 'posts' array is defined and not empty before iterating
         if (Array.isArray(workouts) && workouts.length > 0) {
-            // Display each post
-            // Assuming workoutsListContainer is the container where you want to append the table
             const workoutsTable = document.createElement('table');
             workoutsTable.className = 'workouts-table';
 
@@ -210,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         } else {
-            // If there are no posts, display a message
             const noWorkoutsMessage = document.createElement('p');
             noWorkoutsMessage.textContent = 'No workouts available.';
             workoutsListContainer.appendChild(noWorkoutsMessage);

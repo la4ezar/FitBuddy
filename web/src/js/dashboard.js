@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         `;
 
-        // Make the GraphQL request to fetch all posts
         fetch(graphqlEndpoint, {
             method: 'POST',
             headers: {
@@ -176,8 +175,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function fetchAllNutritions(date) {
-        const graphqlEndpoint = 'http://localhost:8080/graphql';
-
         const gqlQuery = `
             query {
                 getAllNutritionsByEmailAndDate(email: "${email}", date: "${date}") {
@@ -191,7 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         `;
 
-        // Make the GraphQL request to fetch all posts
         fetch(graphqlEndpoint, {
             method: 'POST',
             headers: {
@@ -255,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             const footerRow = nutritionsTable.createTFoot().insertRow();
             const footerCell = footerRow.insertCell();
-            footerCell.colSpan = headerColumns.length; // Span all columns except the first one
+            footerCell.colSpan = headerColumns.length;
             footerCell.textContent = 'Total Calories: ' + calculateTotalCalories(nutritions);
 
             nutritionsListContainer.appendChild(nutritionsTable);

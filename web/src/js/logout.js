@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     alert('Registration failed. Please try again.');
                 } else {
                     document.cookie = `email=; SameSite=Lax; path=/;`;
-                    window.location.href = './login.html'; // Update with the actual path
+                    window.location.href = './login.html';
                 }
             })
             .catch(error => {

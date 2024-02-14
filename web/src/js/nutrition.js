@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const graphqlEndpoint = 'http://localhost:8080/graphql';
     const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
     if (!email) {
         return
     }
 
     let currentDate = new Date();
+    currentDate.setHours(+currentDate.getHours() + 2);
 
     document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
 
@@ -24,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
     }
 
-    const graphqlEndpoint = 'http://localhost:8080/graphql';
     const gqlQuery = `
             query {
                 getAllMeals() {
@@ -33,16 +34,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         `;
-    // Get reference to the meal input and datalist
     const mealDatalist = document.getElementById('mealList');
 
-    // Fetch the exercise list from the backend
     fetch(graphqlEndpoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: gqlQuery }),
+        body: JSON.stringify({query: gqlQuery}),
     })
         .then(response => {
             if (!response.ok) {
@@ -52,10 +51,9 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             console.log(data.data.getAllMeals);
-            // Populate the datalist with exercise options
             data.data.getAllMeals.forEach(meal => {
                 const option = document.createElement('option');
-                option.value = meal.Name; // Replace 'name' with the actual property of your exercise object
+                option.value = meal.Name;
                 mealDatalist.appendChild(option);
             });
         })
@@ -66,7 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchAllNutritions(currentDate.toISOString())
 
-    // Add event listener for the workout form submission
     document.getElementById('nutrition-form').addEventListener('submit', async function (event) {
         event.preventDefault();
 
@@ -79,9 +76,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const numberOfServings = parseInt(numberOfServingsInput.value, 10);
         const date = currentDate.toISOString();
 
-        const graphqlEndpoint = 'http://localhost:8080/graphql';
-
-        // GraphQL mutation to create a workout
         const gqlMutation = `
             mutation {
                 createNutrition(email: "${email}", meal: "${meal}", date: "${date}", servingSize: ${servingSize}, numberOfServings: ${numberOfServings}) {
@@ -116,8 +110,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function fetchAllNutritions(date) {
-        const graphqlEndpoint = 'http://localhost:8080/graphql';
-
         const gqlQuery = `
             query {
                 getAllNutritionsByEmailAndDate(email: "${email}", date: "${date}") {
@@ -131,13 +123,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         `;
 
-        // Make the GraphQL request to fetch all posts
         fetch(graphqlEndpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: gqlQuery }),
+            body: JSON.stringify({query: gqlQuery}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -161,13 +152,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function displayNutritions(nutritions) {
         const nutritionsListContainer = document.querySelector('.nutritions-list');
 
-        // Clear the existing posts
         nutritionsListContainer.innerHTML = '';
 
-        // Check if the 'posts' array is defined and not empty before iterating
         if (Array.isArray(nutritions) && nutritions.length > 0) {
-            // Display each post
-            // Assuming workoutsListContainer is the container where you want to append the table
             const nutritionsTable = document.createElement('table');
             nutritionsTable.className = 'nutritions-table';
 
@@ -192,21 +179,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 gramsCell.textContent = nutrition.Grams;
 
                 const caloriesCell = row.insertCell();
-                caloriesCell.textContent = (nutrition.Grams/100 * nutrition.Calories).toFixed(0);
+                caloriesCell.textContent = (nutrition.Grams / 100 * nutrition.Calories).toFixed(0);
 
                 const dateCell = row.insertCell();
                 dateCell.textContent = new Date(nutrition.Date).toLocaleTimeString();
             });
             const footerRow = nutritionsTable.createTFoot().insertRow();
             const footerCell = footerRow.insertCell();
-            footerCell.colSpan = headerColumns.length; // Span all columns except the first one
+            footerCell.colSpan = headerColumns.length;
             footerCell.textContent = 'Total Calories: ' + calculateTotalCalories(nutritions);
 
-            // Append the table to the container
             nutritionsListContainer.appendChild(nutritionsTable);
-
         } else {
-            // If there are no posts, display a message
             const noNutritionsMessage = document.createElement('p');
             noNutritionsMessage.textContent = 'No nutritions available.';
             nutritionsListContainer.appendChild(noNutritionsMessage);
@@ -214,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Function to calculate the total calories
 function calculateTotalCalories(nutritions) {
     const totalCalories = nutritions.reduce((sum, nutrition) => {
         return sum + (nutrition.Grams / 100 * nutrition.Calories);

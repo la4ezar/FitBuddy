@@ -5,7 +5,7 @@ body {
 }
 
 .dashboard-container {
-    background-color: #4CAF50; /* Match the login form background color */
+    background-color: #4CAF50;
     text-align: center;
 }
 
@@ -54,7 +54,7 @@ body {
 .welcome-message {
     max-width: 600px;
     margin: 20px auto;
-    color: white; /* Text color matches the login form */
+    color: white;
 }
 
 h1 {
@@ -63,7 +63,7 @@ h1 {
 }
 
 #username {
-    color: #45a049; /* Match the login form submit button color */
+    color: #45a049;
 }
 
 .motivational-sentence {
