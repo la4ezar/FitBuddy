@@ -1,0 +1,30 @@
+# Binaries
+*.exe
+*.dll
+*.exe~
+*.dll~
+*.json
+*.yaml
+*.log
+
+# Directories
+/bin/
+/vendor/
+/.idea
+
+# Dependency directories
+/Godeps/
+/vendor/
+/_vendor/
+
+# Compiled Go binary
+*.out
+
+# Log files
+*.log
+
+# Environment variables file
+.env
+
+# macOS
+.DS_Store
