@@ -62,6 +62,19 @@ func (r *Resolver) CreateGoal(ctx context.Context, userEmail, name, description 
 	}, nil
 }
 
+// DeleteGoal is a GraphQL mutation to delete a goal.
+func (r *Resolver) DeleteGoal(ctx context.Context, goalID string) (bool, error) {
+	log.C(ctx).Infof("Deleting goal with ID %q...", goalID)
+
+	err := r.service.DeleteGoal(ctx, goalID)
+	if err != nil {
+		return false, err
+	}
+	log.C(ctx).Infof("Successfully deleted goal with ID %q...", goalID)
+
+	return true, nil
+}
+
 // GetGoalQuery is a GraphQL query to retrieve a fitness or wellness goal by ID.
 func (r *Resolver) GetGoalQuery(ctx context.Context, goalID string) (*Goal, error) {
 	return r.service.GetGoalByID(ctx, goalID)

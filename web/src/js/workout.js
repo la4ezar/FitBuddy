@@ -220,7 +220,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         } else {
-            // If there are no posts, display a message
             const noPostsMessage = document.createElement('p');
             noPostsMessage.textContent = 'No workouts available.';
             workoutsListContainer.appendChild(noPostsMessage);

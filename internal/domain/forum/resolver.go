@@ -38,6 +38,18 @@ func (r *Resolver) CreatePost(ctx context.Context, title, content, email string)
 	return gqlPost, nil
 }
 
+// DeletePost is a GraphQL mutation to delete a forum post.
+func (r *Resolver) DeletePost(ctx context.Context, postID string) (bool, error) {
+	log.C(ctx).Infof("Deleting post with ID %q...", postID)
+	err := r.forumService.DeletePost(ctx, postID)
+	if err != nil {
+		return false, err
+	}
+	log.C(ctx).Infof("Successfully deleted post with ID %q", postID)
+
+	return true, nil
+}
+
 // CreateForumMutation is a GraphQL mutation to create a new forum.
 func (r *Resolver) CreateForumMutation(ctx context.Context, input Forum) (*Forum, error) {
 	return r.forumService.CreateForum(ctx, input.Name)
@@ -79,15 +91,6 @@ func (r *Resolver) UpdatePostMutation(ctx context.Context, input Post) (*Post, e
 // UpdateForumMutation is a GraphQL mutation to update an existing forum.
 func (r *Resolver) UpdateForumMutation(ctx context.Context, input Forum) (*Forum, error) {
 	return r.forumService.UpdateForum(ctx, input.ID, input.Name)
-}
-
-// DeletePostMutation is a GraphQL mutation to delete a forum post by ID.
-func (r *Resolver) DeletePostMutation(ctx context.Context, postID string) (string, error) {
-	err := r.forumService.DeletePost(ctx, postID)
-	if err != nil {
-		return "", err
-	}
-	return "Forum post deleted successfully", nil
 }
 
 // DeleteForumMutation is a GraphQL mutation to delete a forum by ID.

@@ -54,6 +54,7 @@ body {
 .welcome-message {
     max-width: 600px;
     margin: 20px auto;
+    padding: 0 0 10px 0;
     color: white; /* Text color matches the login form */
 }
 
@@ -90,4 +91,91 @@ h1 {
 
 .log-out-button:hover {
     background-color: #39843d; /* Darker shade on hover */
+}
+
+.workouts-list {
+    max-width: 600px;
+    margin: auto;
+}
+
+.workout-display {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 0 20px 0;
+}
+
+.workouts-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.workout-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.workout-item h3 {
+    color: #4CAF50;
+    margin-bottom: 5px;
+}
+
+.workout-item p {
+    margin: 0;
+    color: #333;
+}
+.workouts-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.workouts-table th, .workouts-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.workouts-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.workouts-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.workout-container {
+    text-align: center;
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 5px 20px 20px 20px;
+    border-radius: 8px;
+}
+
+.sleep-container {
+    text-align: center;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+
+.sleep-list {
+    text-align: center;
+    display: block;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.sleep-item {
+    border: 1px solid #ddd;
+    padding: 16px;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

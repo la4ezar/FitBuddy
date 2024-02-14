@@ -80,15 +80,32 @@ button:hover {
 }
 
 .sleep-list {
-    display: flow;
+    text-align: center;
+    display: block;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-    margin: 20px;
 }
 
 .sleep-item {
     border: 1px solid #ddd;
     padding: 16px;
+    margin: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sleep-item {
+    position: relative;
+}
+
+.delete-sleep-button {
+    padding: 6px 10px;
+    background-color: red;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+.delete-sleep-button:hover {
+    background-color: darkred;
 }

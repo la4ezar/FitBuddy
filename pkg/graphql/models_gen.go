@@ -44,7 +44,7 @@ type Post struct {
 type Query struct {
 }
 
-type Sleep struct {
+type SleepLog struct {
 	ID        string `json:"ID"`
 	SleepTime string `json:"SleepTime"`
 	WakeTime  string `json:"WakeTime"`

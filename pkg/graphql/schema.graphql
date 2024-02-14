@@ -7,8 +7,8 @@ type Query {
     getGoals(email: String!): [Goal!]!
     # Posts
     getAllPosts: [Post!]!
-    # Sleep
-    getSleepByEmailAndDate(userEmail: String!, date: String!): [Sleep!]!
+    # Sleep Log
+    getSleepLogByEmailAndDate(userEmail: String!, date: String!): [SleepLog!]!
 
 
     getAllExercises: [Exercise!]!
@@ -27,14 +27,17 @@ type Mutation {
     logoutUser(email: String!): User
     # Posts
     createPost(title: String!, content: String!, email: String!): Post
+    deletePost(postID: ID!): Boolean!
     # Coaches
     bookCoach(email: ID!, coachName: ID!): Boolean!
     unbookCoach(email: ID!, coachName: ID!): Boolean!
     createCoach(name: String!, specialty: String!): Coach
     # Goals
     createGoal(name: String!, description: String!, startDate: String!, endDate: String!, email: String!): Goal
-    # Sleep
-    createSleep(userEmail: String!, sleepTime: String!, wakeTime: String!, date: String!): Sleep
+    deleteGoal(goalID: ID!): Boolean!
+    # Sleep Log
+    createSleepLog(userEmail: String!, sleepLogTime: String!, wakeTime: String!, date: String!): SleepLog
+    deleteSleepLog(sleepLogID: ID!): Boolean!
 
     createWorkout(email: ID!, exercise: String!, date: String!, sets: Int!, reps: Int!, weight: Float!): Workout
     createNutritionLog(userID: ID!, description: String!, calories: Int!): NutritionLog
@@ -97,7 +100,7 @@ type Goal {
     EndDate: String!
 }
 
-type Sleep {
+type SleepLog {
     ID: ID!
     SleepTime: String!
     WakeTime: String!

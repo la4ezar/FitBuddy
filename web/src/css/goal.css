@@ -70,3 +70,20 @@ button:hover {
 .goal-card h2 {
     color: #4CAF50;
 }
+
+.goal-card {
+    position: relative;
+}
+
+.delete-goal-button {
+    padding: 6px 10px;
+    background-color: red;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+.delete-goal-button:hover {
+    background-color: darkred;
+}

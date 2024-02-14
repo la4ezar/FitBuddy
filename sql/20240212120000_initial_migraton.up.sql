@@ -73,7 +73,7 @@ CREATE TABLE nutrition
     FOREIGN KEY (meal_id) REFERENCES meals (id) on DELETE CASCADE
 );
 
-CREATE TABLE sleep
+CREATE TABLE sleep_logs
 (
     id         uuid PRIMARY KEY CHECK (id <> '00000000-0000-0000-0000-000000000000'),
     user_id    uuid      NOT NULL,

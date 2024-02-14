@@ -22,7 +22,7 @@ func NewRepository(db *sql.DB) *Repository {
 func (r *Repository) CreateLog(ctx context.Context, sleep *Log) error {
 	startOfDay := time.Date(sleep.LoggedAt.Year(), sleep.LoggedAt.Month(), sleep.LoggedAt.Day(), 0, 0, 0, 0, sleep.LoggedAt.Location())
 
-	_, err := r.db.ExecContext(ctx, "INSERT INTO sleep (id, user_id, sleep_time, wake_time, logged_at) VALUES ($1, (SELECT id FROM users WHERE email = $2), $3, $4, $5)",
+	_, err := r.db.ExecContext(ctx, "INSERT INTO sleep_logs (id, user_id, sleep_time, wake_time, logged_at) VALUES ($1, (SELECT id FROM users WHERE email = $2), $3, $4, $5)",
 		sleep.ID, sleep.UserEmail, sleep.SleepTime.Format(time.RFC3339), sleep.WakeTime.Format(time.RFC3339), startOfDay.Format(time.RFC3339))
 	if err != nil {
 		return err
@@ -31,11 +31,11 @@ func (r *Repository) CreateLog(ctx context.Context, sleep *Log) error {
 	return nil
 }
 
-// GetSleepByEmailAndDate gets sleep by email and date
-func (r *Repository) GetSleepByEmailAndDate(ctx context.Context, userEmail string, date time.Time) ([]*Log, error) {
+// GetSleepLogByEmailAndDate gets sleep by email and date
+func (r *Repository) GetSleepLogByEmailAndDate(ctx context.Context, userEmail string, date time.Time) ([]*Log, error) {
 	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 
-	rows, err := r.db.QueryContext(ctx, "SELECT id, sleep_time, wake_time, logged_at FROM sleep WHERE user_id = (SELECT id FROM users WHERE email = $1) AND logged_at = $2::timestamp",
+	rows, err := r.db.QueryContext(ctx, "SELECT id, sleep_time, wake_time, logged_at FROM sleep_logs WHERE user_id = (SELECT id FROM users WHERE email = $1) AND logged_at = $2::timestamp",
 		userEmail, startOfDay.Format(time.RFC3339))
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (r *Repository) GetSleepByEmailAndDate(ctx context.Context, userEmail strin
 // GetLogByID retrieves a sleep log entry from the database by ID.
 func (r *Repository) GetLogByID(ctx context.Context, sleepLogID string) (*Log, error) {
 	query := `
-		SELECT id, user_id, duration, sleep_time, wake_time
+		SELECT id, sleep_time, wake_time
 		FROM sleep_logs
 		WHERE id = $1
 	`

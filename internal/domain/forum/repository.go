@@ -43,15 +43,15 @@ func (r *Repository) CreateForum(ctx context.Context, forum *Forum) error {
 // GetPostByID retrieves a forum post from the database by ID.
 func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, error) {
 	query := `
-		SELECT id, title, content, author_id, logged_at
-		FROM forum_posts
+		SELECT id, title, content
+		FROM posts
 		WHERE id = $1
 	`
 
 	row := r.db.QueryRowContext(ctx, query, postID)
 
 	var post Post
-	err := row.Scan(&post.ID, &post.Title, &post.Content, &post.UserEmail, &post.CreatedAt)
+	err := row.Scan(&post.ID, &post.Title, &post.Content)
 	if err == sql.ErrNoRows {
 		return nil, nil // Post not found
 	} else if err != nil {
@@ -139,7 +139,7 @@ func (r *Repository) UpdateForum(ctx context.Context, forum *Forum) error {
 // DeletePost deletes a forum post from the database by ID.
 func (r *Repository) DeletePost(ctx context.Context, postID string) error {
 	query := `
-		DELETE FROM forum_posts
+		DELETE FROM posts
 		WHERE id = $1
 	`
 

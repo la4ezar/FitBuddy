@@ -14,9 +14,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const endDate = parseCustomDateString(document.getElementById('end-date').value);
 
 
-        createGoal(name, description, startDate, endDate, emailCookie)
+        createGoal(name, description, startDate, endDate)
             .then(() => {
-                fetchAndDisplayGoals(emailCookie);
+                fetchAndDisplayGoals();
             })
             .catch(error => {
                 console.error('Error creating goal:', error);
@@ -24,10 +24,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-    const createGoal = (name, description, startDate, endDate, email) => {
+    const createGoal = (name, description, startDate, endDate) => {
         const createGoalMutation = `
             mutation {
-                createGoal(name: "${name}", description: "${description}", startDate: "${startDate}", endDate: "${endDate}", email: "${email}") {
+                createGoal(name: "${name}", description: "${description}", startDate: "${startDate}", endDate: "${endDate}", email: "${emailCookie}") {
                     ID
                 }
             }
@@ -53,10 +53,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     };
 
-    const fetchAndDisplayGoals = (email) => {
+    const fetchAndDisplayGoals = () => {
         const getGoalsQuery = `
             query {
-                getGoals(email: "${email}") {
+                getGoals(email: "${emailCookie}") {
                     ID
                     Name
                     Description
@@ -92,30 +92,67 @@ document.addEventListener('DOMContentLoaded', function () {
         goalsListContainer.innerHTML = '';
 
         goals.forEach(goal => {
-            const goalCard = document.createElement('div');
-            goalCard.classList.add('goal-card');
+            const goalElement = document.createElement('div');
+            goalElement.classList.add('goal-card');
 
             const nameElement = document.createElement('h3');
             nameElement.textContent = `Name: ${goal.Name}`;
-            goalCard.appendChild(nameElement);
+            goalElement.appendChild(nameElement);
 
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = `Description: ${goal.Description}`;
-            goalCard.appendChild(descriptionElement);
+            goalElement.appendChild(descriptionElement);
 
             const startDateElement = document.createElement('p');
             let goalStartDate = `${goal.StartDate}`.split(" ")[0]
             startDateElement.textContent = `Start Date: ${goalStartDate}`;
-            goalCard.appendChild(startDateElement);
+            goalElement.appendChild(startDateElement);
 
             const endDateElement = document.createElement('p');
             let goalEndDate = `${goal.EndDate}`.split(" ")[0]
             endDateElement.textContent = `End Date: ${goalEndDate}`;
-            goalCard.appendChild(endDateElement);
+            goalElement.appendChild(endDateElement);
 
-            goalsListContainer.appendChild(goalCard);
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'X';
+            deleteButton.className = 'delete-goal-button';
+            goalElement.appendChild(deleteButton);
+
+            deleteButton.addEventListener('click', function (event) {
+                deleteGoal(goal.ID);
+            });
+
+            goalsListContainer.appendChild(goalElement);
         });
     };
+
+    function deleteGoal(goalID) {
+        const gqlMutation = `
+            mutation {
+                deleteGoal(goalID: "${goalID}")
+            }
+        `;
+
+        fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: gqlMutation }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if (data.data) {
+                    fetchAndDisplayGoals()
+                } else {
+                    console.error('Failed to delete goal.');
+                }
+            })
+            .catch(error => {
+                console.error('Error making GraphQL request:', error);
+            });
+    }
 
     function parseCustomDateString(customDateString) {
         const [year, month, day] = customDateString.split('-');
@@ -125,5 +162,5 @@ document.addEventListener('DOMContentLoaded', function () {
         return parsedDate.toISOString();
     }
 
-    fetchAndDisplayGoals(emailCookie);
+    fetchAndDisplayGoals();
 });

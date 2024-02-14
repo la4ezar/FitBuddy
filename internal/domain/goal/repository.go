@@ -72,7 +72,7 @@ func (r *Repository) GetGoalsByEmail(ctx context.Context, userEmail string) ([]*
 // GetGoalByID retrieves a fitness or wellness goal from the database by ID.
 func (r *Repository) GetGoalByID(ctx context.Context, goalID string) (*Goal, error) {
 	query := `
-		SELECT id, user_id, title, description, start_date, end_date
+		SELECT id, name, description, start_date, end_date
 		FROM goals
 		WHERE id = $1
 	`
@@ -82,6 +82,7 @@ func (r *Repository) GetGoalByID(ctx context.Context, goalID string) (*Goal, err
 	var goalItem Goal
 	err := row.Scan(
 		&goalItem.ID,
+		&goalItem.Name,
 		&goalItem.Description,
 		&goalItem.StartDate,
 		&goalItem.EndDate,

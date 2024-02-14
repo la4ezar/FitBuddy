@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
     const forumContainer = document.querySelector('.post-display');
+    const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (emailCookie) {
+        console.log('Email:', emailCookie);
+    } else {
+        console.log('Email cookie not found.');
+    }
+    const graphqlEndpoint = 'http://localhost:8080/graphql';
 
     fetchAllPosts();
 
@@ -7,16 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
     postForm.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
-        if (emailCookie) {
-            console.log('Email:', emailCookie);
-        } else {
-            console.log('Email cookie not found.');
-        }
         const title = document.getElementById('post-title').value;
         const content = document.getElementById('post-content').value;
-
-        const graphqlEndpoint = 'http://localhost:8080/graphql';
 
         const gqlMutation = `
             mutation {
@@ -59,9 +58,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function fetchAllPosts() {
-        // Replace 'your-graphql-endpoint' with your actual GraphQL endpoint
-        const graphqlEndpoint = 'http://localhost:8080/graphql';
-
         const gqlQuery = `
             query {
                 getAllPosts {
@@ -74,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         `;
 
-        // Make the GraphQL request to fetch all posts
         fetch(graphqlEndpoint, {
             method: 'POST',
             headers: {
@@ -127,6 +122,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 postElement.appendChild(contentElement);
                 postElement.appendChild(userElement);
 
+                if (emailCookie === post.UserEmail) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'X';
+                    deleteButton.className = 'delete-post-button';
+                    postElement.appendChild(deleteButton);
+
+                    deleteButton.addEventListener('click', function (event) {
+                       deletePost(post.ID);
+                    });
+                }
+
                 postsListContainer.appendChild(postElement);
             });
         } else {
@@ -135,5 +141,33 @@ document.addEventListener('DOMContentLoaded', function () {
             noPostsMessage.textContent = 'No posts available.';
             postsListContainer.appendChild(noPostsMessage);
         }
+    }
+
+    function deletePost(postID) {
+        const gqlMutation = `
+            mutation {
+                deletePost(postID: "${postID}")
+            }
+        `;
+
+        fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: gqlMutation }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if (data.data) {
+                    fetchAllPosts()
+                } else {
+                    console.error('Failed to delete post.');
+                }
+            })
+            .catch(error => {
+                console.error('Error making GraphQL request:', error);
+            });
     }
 });

@@ -92,3 +92,20 @@ button:hover {
     color: #777;
     font-size: 0.9em;
 }
+
+.post {
+    position: relative;
+}
+
+.delete-post-button {
+    padding: 6px 10px;
+    background-color: red;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+.delete-post-button:hover {
+    background-color: darkred;
+}

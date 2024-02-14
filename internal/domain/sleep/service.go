@@ -3,7 +3,6 @@ package sleep
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -25,14 +24,9 @@ func (s *Service) CreateLog(ctx context.Context, userEmail string, sleepTime, wa
 		return nil, errors.New("user email and valid sleep and wake times are required")
 	}
 
-	fmt.Println("Is wake time before sleep time: ", wakeTime.Before(sleepTime))
-	fmt.Printf("wake time: %v\n", wakeTime)
-	fmt.Printf("sleep time: %v\n", sleepTime)
 	if wakeTime.Before(sleepTime) {
 		sleepTime = sleepTime.AddDate(0, 0, -1)
 	}
-	fmt.Printf("wake time: %v\n", wakeTime)
-	fmt.Printf("sleep time: %v\n", sleepTime)
 	newLog := NewLog(userEmail, sleepTime, wakeTime, date)
 
 	if err := s.sleepRepository.CreateLog(ctx, newLog); err != nil {
@@ -42,13 +36,13 @@ func (s *Service) CreateLog(ctx context.Context, userEmail string, sleepTime, wa
 	return newLog, nil
 }
 
-// GetSleepByEmailAndDate gets sleep for a given date and user by email
-func (s *Service) GetSleepByEmailAndDate(ctx context.Context, userEmail string, date time.Time) ([]*Log, error) {
+// GetSleepLogByEmailAndDate gets sleep for a given date and user by email
+func (s *Service) GetSleepLogByEmailAndDate(ctx context.Context, userEmail string, date time.Time) ([]*Log, error) {
 	if userEmail == "" {
 		return nil, errors.New("user email is required")
 	}
 
-	sleep, err := s.sleepRepository.GetSleepByEmailAndDate(ctx, userEmail, date)
+	sleep, err := s.sleepRepository.GetSleepLogByEmailAndDate(ctx, userEmail, date)
 	if err != nil {
 		return nil, err
 	}
