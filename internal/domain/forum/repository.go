@@ -20,7 +20,7 @@ func NewRepository(db *sql.DB) *Repository {
 // CreatePost creates a new forum post in the database.
 func (r *Repository) CreatePost(ctx context.Context, post *Post) error {
 	if _, err := r.db.ExecContext(ctx, `
-        INSERT INTO posts (id, user_id, title, content, created_at)
+        INSERT INTO posts (id, user_id, title, content, logged_at)
         VALUES ($1, (SELECT id FROM users WHERE email = $2), $3, $4, $5)
     `, post.ID, post.UserEmail, post.Title, post.Content, post.CreatedAt); err != nil {
 		return err
@@ -43,7 +43,7 @@ func (r *Repository) CreateForum(ctx context.Context, forum *Forum) error {
 // GetPostByID retrieves a forum post from the database by ID.
 func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, error) {
 	query := `
-		SELECT id, title, content, author_id, created_at
+		SELECT id, title, content, author_id, logged_at
 		FROM forum_posts
 		WHERE id = $1
 	`
@@ -64,10 +64,10 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, err
 // GetAllPosts retrieves all posts from the database.
 func (r *Repository) GetAllPosts(ctx context.Context) ([]*Post, error) {
 	rows, err := r.db.QueryContext(ctx, `
-        SELECT p.id, u.email, p.title, p.content, p.created_at
+        SELECT p.id, u.email, p.title, p.content, p.logged_at
         FROM posts p
         JOIN users u ON p.user_id = u.id
-        ORDER BY p.created_at DESC
+        ORDER BY p.logged_at DESC
     `)
 	if err != nil {
 		return nil, err
