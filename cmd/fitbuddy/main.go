@@ -44,7 +44,6 @@ func main() {
 		exitOnError(err, "Error while closing the connection to the database")
 	}()
 
-	// Create repositories for each aggregate
 	userRepository := user.NewRepository(db)
 	coachRepository := coach.NewRepository(db)
 	exerciseRepository := exercise.NewRepository(db)
@@ -55,7 +54,6 @@ func main() {
 	nutritionRepository := nutrition.NewRepository(db)
 	leaderboardRepository := leaderboard.NewRepository(db)
 
-	// Create services for each aggregate
 	userService := user.NewService(userRepository)
 	coachService := coach.NewService(coachRepository)
 	exerciseService := exercise.NewService(exerciseRepository)
@@ -66,7 +64,6 @@ func main() {
 	nutritionService := nutrition.NewService(nutritionRepository)
 	leaderboardService := leaderboard.NewService(leaderboardRepository)
 
-	// Create resolvers for each aggregate
 	userResolver := user.NewResolver(userService, leaderboardService)
 	coachResolver := coach.NewResolver(coachService)
 	exerciseResolver := exercise.NewResolver(exerciseService)
@@ -77,7 +74,6 @@ func main() {
 	nutritionResolver := nutrition.NewNutritionResolver(nutritionService)
 	leaderboardResolver := leaderboard.NewLeaderboardResolver(leaderboardService)
 
-	// Create a new mux router
 	mainRouter := mux.NewRouter()
 
 	PlaygroundAPIEndpoint := "/graphql"
@@ -104,22 +100,19 @@ func main() {
 	gqlAPIRouter.HandleFunc("", gqlServ.ServeHTTP)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:63342"}, // Add your frontend origin
+		AllowedOrigins:   []string{"http://localhost:63342"},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,
 	})
 
-	// Wrap your existing router or handler with the CORS handler
 	corsHandler := c.Handler(mainRouter)
 
-	// Serve the API on a specified port
 	ServerTimeout := time.Second * 30
 	runMainSrv, shutdownMainSrv := createServer(ctx, "localhost:8080", corsHandler, "main", ServerTimeout)
 
 	go func() {
 		<-ctx.Done()
-		// Interrupt signal received - shut down the server
 		shutdownMainSrv()
 	}()
 

@@ -72,6 +72,8 @@ FitBuddy is your dedicated companion for achieving health and fitness goals. Gai
     - Service Layer: Implements business logic and interacts with the repository layer.
     - Repository Layer: Manages database interactions using PostgreSQL.
 
+  - **Migrator**
+    - Handles SQL up and down migrations
 - **Error Handling and Logging**
   - Comprehensive error handling in each layer.
   - Centralized logging for monitoring and debugging.
@@ -223,6 +225,13 @@ type LeaderboardUser {
  - **Docker**
  - **Golang**
  - **PostgreSQL**
- - **Database package - “database/sql”**
- - **Viper package for working with environment configs - “github.com/spf13/viper”**
- - **Migrate - “github.com/golang-migrate/migrate/v4”**
+ - **Database SQL** package - "database/sql"
+ - **Viper** for working with environment configs - "github.com/spf13/viper"
+ - **Migrate** for executing DB migrations - "github.com/golang-migrate/migrate/v4"
+ - **Gorilla Mux** for handling incoming HTTP requests - "github.com/gorilla/mux"
+ - **PQ** for Postgres driver - "github.com/lib/pq"
+ - **CORS** - "github.com/rs/cors"
+ - **Google UUID** for unique IDs - "github.com/google/uuid"
+ - **Logrus** for logging - "github.com/sirupsen/logrus"
+ - **99deisgns gqlgen** for GraphQL - "github.com/99designs/gqlgen"
+ - **Errors** for better error handling - "github.com/pkg/errors"

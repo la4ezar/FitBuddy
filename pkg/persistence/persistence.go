@@ -6,7 +6,6 @@ import (
 	"github.com/FitBuddy/pkg/log"
 	"time"
 
-	// Importing the database driver (postgresql)
 	_ "github.com/lib/pq"
 )
 
