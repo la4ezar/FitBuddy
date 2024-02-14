@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
             workoutsTable.className = 'workouts-table';
 
             const headerRow = workoutsTable.createTHead().insertRow();
-            const headerColumns = ['Exercise', 'Reps', 'Sets', 'Weight', 'Time'];
+            const headerColumns = ['Exercise', 'Reps', 'Sets', 'Weight', 'Time', ''];
 
             headerColumns.forEach(columnName => {
                 const headerCell = document.createElement('th');
@@ -190,7 +190,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const dateCell = row.insertCell();
                 dateCell.textContent = new Date(workout.Date).toLocaleTimeString();
+
+                const deleteCell = row.insertCell();
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'X';
+                deleteButton.className = 'delete-workout-button';
+                deleteCell.appendChild(deleteButton);
+
+                deleteButton.addEventListener('click', function () {
+                    deleteWorkout(workout.ID);
+                });
             });
+
+            function deleteWorkout(workoutID) {
+                const gqlMutation = `
+                mutation {
+                    deleteWorkout(workoutID: "${workoutID}")
+                }
+            `;
+
+                fetch(graphqlEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: gqlMutation }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.data && data.data.deleteWorkout) {
+                            fetchAllWorkouts(currentDate.toISOString());
+                        } else {
+                            console.error('Failed to delete workout log.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error making GraphQL request:', error);
+                    });
+            }
+
 
 
         } else {

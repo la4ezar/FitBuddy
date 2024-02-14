@@ -44,6 +44,19 @@ func (r *Resolver) CreateNutrition(ctx context.Context, email, meal, date string
 	return gqlNutrition, nil
 }
 
+// DeleteNutrition is a GraphQL mutation to delete a nutrition entry.
+func (r *Resolver) DeleteNutrition(ctx context.Context, nutritionID string) (bool, error) {
+	log.C(ctx).Infof("Deleting nutrition with ID %q...", nutritionID)
+
+	err := r.service.DeleteNutrition(ctx, nutritionID)
+	if err != nil {
+		return false, err
+	}
+
+	log.C(ctx).Infof("Successfully deleted nutrition with ID %q", nutritionID)
+	return true, nil
+}
+
 // GetAllNutritions is a GraphQL query to retrieve all nutritions.
 func (r *Resolver) GetAllNutritions(ctx context.Context, email, date string) ([]*graphql.Nutrition, error) {
 	log.C(ctx).Info("Getting all nutritions...")

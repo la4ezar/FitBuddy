@@ -140,6 +140,16 @@ func (m mutationResolver) CreateNutrition(ctx context.Context, email, meal, date
 	return m.nutritionResolver.CreateNutrition(ctx, email, meal, date, servingSize, numberOfServings)
 }
 
+// DeleteNutrition deletes nutrition with ID.
+func (m mutationResolver) DeleteNutrition(ctx context.Context, nutritionID string) (bool, error) {
+	return m.nutritionResolver.DeleteNutrition(ctx, nutritionID)
+}
+
+// DeleteWorkout deletes workout with ID
+func (m mutationResolver) DeleteWorkout(ctx context.Context, workoutID string) (bool, error) {
+	return m.workoutResolver.DeleteWorkout(ctx, workoutID)
+}
+
 // Mutation missing godoc
 func (r *RootResolver) Mutation() graphql.MutationResolver {
 	return &mutationResolver{r}

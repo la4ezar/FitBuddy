@@ -68,12 +68,6 @@ type User struct {
 	Email string `json:"Email"`
 }
 
-type UserProfile struct {
-	Age    *int     `json:"Age,omitempty"`
-	Height *float64 `json:"Height,omitempty"`
-	Weight *float64 `json:"Weight,omitempty"`
-}
-
 type Workout struct {
 	ID           string  `json:"ID"`
 	UserEmail    string  `json:"UserEmail"`

@@ -35,6 +35,20 @@ func (s *Service) CreateNutrition(ctx context.Context, email, meal string, servi
 	return nutrition, nil
 }
 
+// DeleteNutrition deletes a nutrition entry.
+func (s *Service) DeleteNutrition(ctx context.Context, nutritionID string) error {
+	if nutritionID == "" {
+		return errors.New("nutritionID is required")
+	}
+
+	if err := s.repository.DeleteNutrition(ctx, nutritionID); err != nil {
+		log.C(ctx).Infof("Deleting nutrition with ID %q is returning %v", nutritionID, err)
+		return err
+	}
+
+	return nil
+}
+
 // GetAllNutritions retrieves all nutritions.
 func (s *Service) GetAllNutritions(ctx context.Context, email string, date time.Time) ([]*Nutrition, error) {
 	return s.repository.GetAllNutritions(ctx, email, date)

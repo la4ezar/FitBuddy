@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
             nutritionsTable.className = 'nutritions-table';
 
             const headerRow = nutritionsTable.createTHead().insertRow();
-            const headerColumns = ['Meal', 'Grams', 'Calories', 'Time'];
+            const headerColumns = ['Meal', 'Grams', 'Calories', 'Time', ''];
 
             headerColumns.forEach(columnName => {
                 const headerCell = document.createElement('th');
@@ -183,6 +183,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const dateCell = row.insertCell();
                 dateCell.textContent = new Date(nutrition.Date).toLocaleTimeString();
+
+                const deleteCell = row.insertCell();
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'X';
+                deleteButton.className = 'delete-nutrition-button';
+                deleteCell.appendChild(deleteButton);
+
+                deleteButton.addEventListener('click', function () {
+                    deleteNutrition(nutrition.ID);
+                });
             });
             const footerRow = nutritionsTable.createTFoot().insertRow();
             const footerCell = footerRow.insertCell();
@@ -196,12 +206,40 @@ document.addEventListener('DOMContentLoaded', function () {
             nutritionsListContainer.appendChild(noNutritionsMessage);
         }
     }
+
+    function deleteNutrition(nutritionID) {
+        const gqlMutation = `
+            mutation {
+                deleteNutrition(nutritionID: "${nutritionID}")
+            }
+        `;
+
+        fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: gqlMutation }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.data && data.data.deleteNutrition) {
+                    fetchAllNutritions(currentDate.toISOString());
+                } else {
+                    console.error('Failed to delete nutrition log.');
+                }
+            })
+            .catch(error => {
+                console.error('Error making GraphQL request:', error);
+            });
+    }
+
+    function calculateTotalCalories(nutritions) {
+        const totalCalories = nutritions.reduce((sum, nutrition) => {
+            return sum + (nutrition.Grams / 100 * nutrition.Calories);
+        }, 0);
+
+        return totalCalories.toFixed(0);
+    }
 });
-
-function calculateTotalCalories(nutritions) {
-    const totalCalories = nutritions.reduce((sum, nutrition) => {
-        return sum + (nutrition.Grams / 100 * nutrition.Calories);
-    }, 0);
-
-    return totalCalories.toFixed(0);
-}

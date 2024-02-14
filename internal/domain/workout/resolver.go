@@ -46,6 +46,18 @@ func (r *Resolver) CreateWorkout(ctx context.Context, email, exercise, date stri
 	return gqlWorkout, nil
 }
 
+// DeleteWorkout is a GraphQL mutation to delete a workout entry.
+func (r *Resolver) DeleteWorkout(ctx context.Context, workoutID string) (bool, error) {
+	log.C(ctx).Infof("Creating workout with ID %q...", workoutID)
+
+	if err := r.service.DeleteWorkout(ctx, workoutID); err != nil {
+		return false, err
+	}
+	log.C(ctx).Infof("Successfully deleted workout with ID %q", workoutID)
+
+	return true, nil
+}
+
 // GetAllWorkouts is a GraphQL query to retrieve all workouts.
 func (r *Resolver) GetAllWorkouts(ctx context.Context, email, date string) ([]*graphql.Workout, error) {
 	log.C(ctx).Info("Getting all workouts...")

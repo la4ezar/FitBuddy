@@ -31,6 +31,18 @@ func (r *Repository) CreateNutrition(ctx context.Context, nutrition *Nutrition) 
 	return nil
 }
 
+// DeleteNutrition deletes a nutrition entry in the database.
+func (r *Repository) DeleteNutrition(ctx context.Context, nutritionID string) error {
+	if _, err := r.db.ExecContext(ctx, `
+        DELETE FROM nutrition
+		WHERE id = $1
+    `, nutritionID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetAllNutritions retrieves all nutritions for user with email and date from the database.
 func (r *Repository) GetAllNutritions(ctx context.Context, email string, date time.Time) ([]*Nutrition, error) {
 	rows, err := r.db.QueryContext(ctx, `

@@ -9,13 +9,15 @@ type Query {
     getAllPosts: [Post!]!
     # Sleep Log
     getSleepLogByEmailAndDate(userEmail: String!, date: String!): [SleepLog!]!
-
-
+    # Exercise
     getAllExercises: [Exercise!]!
+    # Workout
     getAllWorkoutsByEmailAndDate(email: String!, date: String!): [Workout!]!
+    # Nutrition
     getAllNutritionsByEmailAndDate(email: String!, date: String!): [Nutrition!]!
+    # Meal
     getAllMeals: [Meal!]!
-
+    # Leaderboard
     getLeaderboardUsers: [LeaderboardUser!]!
 
 }
@@ -38,20 +40,17 @@ type Mutation {
     # Sleep Log
     createSleepLog(userEmail: String!, sleepLogTime: String!, wakeTime: String!, date: String!): SleepLog
     deleteSleepLog(sleepLogID: ID!): Boolean!
-
-    createWorkout(email: String!, exercise: String!, date: String!, sets: Int!, reps: Int!, weight: Float!): Workout
+    # Nutrition
     createNutrition(email: String!, meal: String!, date: String!, servingSize: Int!, numberOfServings: Int!): Nutrition
+    deleteNutrition(nutritionID: ID!): Boolean!
+    # Workout
+    createWorkout(email: String!, exercise: String!, date: String!, sets: Int!, reps: Int!, weight: Float!): Workout
+    deleteWorkout(workoutID: ID!): Boolean!
 }
 
 type User {
     ID: ID!
     Email: String!
-}
-
-type UserProfile {
-    Age: Int
-    Height: Float
-    Weight: Float
 }
 
 type Workout {

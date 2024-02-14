@@ -37,6 +37,20 @@ func (s *Service) CreateWorkout(ctx context.Context, email, exercise string, set
 	return workout, nil
 }
 
+// DeleteWorkout deletes a workout entry.
+func (s *Service) DeleteWorkout(ctx context.Context, workoutID string) error {
+	if workoutID == "" {
+		return errors.New("workout ID is required")
+	}
+
+	if err := s.repository.DeleteWorkout(ctx, workoutID); err != nil {
+		log.C(ctx).Infof("Deleting Workout with ID %q: %v", workoutID, err)
+		return err
+	}
+
+	return nil
+}
+
 // GetAllWorkouts retrieves all workouts.
 func (s *Service) GetAllWorkouts(ctx context.Context, email string, date time.Time) ([]*Workout, error) {
 	return s.repository.GetAllWorkouts(ctx, email, date)

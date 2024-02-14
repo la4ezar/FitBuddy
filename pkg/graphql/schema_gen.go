@@ -88,8 +88,10 @@ type ComplexityRoot struct {
 		CreateUser      func(childComplexity int, email string, password string) int
 		CreateWorkout   func(childComplexity int, email string, exercise string, date string, sets int, reps int, weight float64) int
 		DeleteGoal      func(childComplexity int, goalID string) int
+		DeleteNutrition func(childComplexity int, nutritionID string) int
 		DeletePost      func(childComplexity int, postID string) int
 		DeleteSleepLog  func(childComplexity int, sleepLogID string) int
+		DeleteWorkout   func(childComplexity int, workoutID string) int
 		LoginUser       func(childComplexity int, email string, password string) int
 		LogoutUser      func(childComplexity int, email string) int
 		UnbookCoach     func(childComplexity int, email string, coachName string) int
@@ -137,12 +139,6 @@ type ComplexityRoot struct {
 		ID    func(childComplexity int) int
 	}
 
-	UserProfile struct {
-		Age    func(childComplexity int) int
-		Height func(childComplexity int) int
-		Weight func(childComplexity int) int
-	}
-
 	Workout struct {
 		Date         func(childComplexity int) int
 		ExerciseName func(childComplexity int) int
@@ -167,8 +163,10 @@ type MutationResolver interface {
 	DeleteGoal(ctx context.Context, goalID string) (bool, error)
 	CreateSleepLog(ctx context.Context, userEmail string, sleepLogTime string, wakeTime string, date string) (*SleepLog, error)
 	DeleteSleepLog(ctx context.Context, sleepLogID string) (bool, error)
-	CreateWorkout(ctx context.Context, email string, exercise string, date string, sets int, reps int, weight float64) (*Workout, error)
 	CreateNutrition(ctx context.Context, email string, meal string, date string, servingSize int, numberOfServings int) (*Nutrition, error)
+	DeleteNutrition(ctx context.Context, nutritionID string) (bool, error)
+	CreateWorkout(ctx context.Context, email string, exercise string, date string, sets int, reps int, weight float64) (*Workout, error)
+	DeleteWorkout(ctx context.Context, workoutID string) (bool, error)
 }
 type QueryResolver interface {
 	GetAllCoaches(ctx context.Context) ([]*Coach, error)
@@ -430,6 +428,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteGoal(childComplexity, args["goalID"].(string)), true
 
+	case "Mutation.deleteNutrition":
+		if e.complexity.Mutation.DeleteNutrition == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteNutrition_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteNutrition(childComplexity, args["nutritionID"].(string)), true
+
 	case "Mutation.deletePost":
 		if e.complexity.Mutation.DeletePost == nil {
 			break
@@ -453,6 +463,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteSleepLog(childComplexity, args["sleepLogID"].(string)), true
+
+	case "Mutation.deleteWorkout":
+		if e.complexity.Mutation.DeleteWorkout == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteWorkout_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteWorkout(childComplexity, args["workoutID"].(string)), true
 
 	case "Mutation.loginUser":
 		if e.complexity.Mutation.LoginUser == nil {
@@ -708,27 +730,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.ID(childComplexity), true
-
-	case "UserProfile.Age":
-		if e.complexity.UserProfile.Age == nil {
-			break
-		}
-
-		return e.complexity.UserProfile.Age(childComplexity), true
-
-	case "UserProfile.Height":
-		if e.complexity.UserProfile.Height == nil {
-			break
-		}
-
-		return e.complexity.UserProfile.Height(childComplexity), true
-
-	case "UserProfile.Weight":
-		if e.complexity.UserProfile.Weight == nil {
-			break
-		}
-
-		return e.complexity.UserProfile.Weight(childComplexity), true
 
 	case "Workout.Date":
 		if e.complexity.Workout.Date == nil {
@@ -1226,6 +1227,21 @@ func (ec *executionContext) field_Mutation_deleteGoal_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteNutrition_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["nutritionID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nutritionID"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["nutritionID"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deletePost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1253,6 +1269,21 @@ func (ec *executionContext) field_Mutation_deleteSleepLog_args(ctx context.Conte
 		}
 	}
 	args["sleepLogID"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteWorkout_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["workoutID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workoutID"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["workoutID"] = arg0
 	return args, nil
 }
 
@@ -2940,6 +2971,127 @@ func (ec *executionContext) fieldContext_Mutation_deleteSleepLog(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createNutrition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createNutrition(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateNutrition(rctx, fc.Args["email"].(string), fc.Args["meal"].(string), fc.Args["date"].(string), fc.Args["servingSize"].(int), fc.Args["numberOfServings"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Nutrition)
+	fc.Result = res
+	return ec.marshalONutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createNutrition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Nutrition_ID(ctx, field)
+			case "UserEmail":
+				return ec.fieldContext_Nutrition_UserEmail(ctx, field)
+			case "MealName":
+				return ec.fieldContext_Nutrition_MealName(ctx, field)
+			case "Grams":
+				return ec.fieldContext_Nutrition_Grams(ctx, field)
+			case "Calories":
+				return ec.fieldContext_Nutrition_Calories(ctx, field)
+			case "Date":
+				return ec.fieldContext_Nutrition_Date(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Nutrition", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createNutrition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteNutrition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteNutrition(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteNutrition(rctx, fc.Args["nutritionID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteNutrition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteNutrition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createWorkout(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createWorkout(ctx, field)
 	if err != nil {
@@ -3008,8 +3160,8 @@ func (ec *executionContext) fieldContext_Mutation_createWorkout(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createNutrition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createNutrition(ctx, field)
+func (ec *executionContext) _Mutation_deleteWorkout(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteWorkout(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3022,42 +3174,31 @@ func (ec *executionContext) _Mutation_createNutrition(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateNutrition(rctx, fc.Args["email"].(string), fc.Args["meal"].(string), fc.Args["date"].(string), fc.Args["servingSize"].(int), fc.Args["numberOfServings"].(int))
+		return ec.resolvers.Mutation().DeleteWorkout(rctx, fc.Args["workoutID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*Nutrition)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalONutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createNutrition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_deleteWorkout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "ID":
-				return ec.fieldContext_Nutrition_ID(ctx, field)
-			case "UserEmail":
-				return ec.fieldContext_Nutrition_UserEmail(ctx, field)
-			case "MealName":
-				return ec.fieldContext_Nutrition_MealName(ctx, field)
-			case "Grams":
-				return ec.fieldContext_Nutrition_Grams(ctx, field)
-			case "Calories":
-				return ec.fieldContext_Nutrition_Calories(ctx, field)
-			case "Date":
-				return ec.fieldContext_Nutrition_Date(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Nutrition", field.Name)
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	defer func() {
@@ -3067,7 +3208,7 @@ func (ec *executionContext) fieldContext_Mutation_createNutrition(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createNutrition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_deleteWorkout_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4546,129 +4687,6 @@ func (ec *executionContext) fieldContext_User_Email(ctx context.Context, field g
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserProfile_Age(ctx context.Context, field graphql.CollectedField, obj *UserProfile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserProfile_Age(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Age, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserProfile_Age(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserProfile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserProfile_Height(ctx context.Context, field graphql.CollectedField, obj *UserProfile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserProfile_Height(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Height, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*float64)
-	fc.Result = res
-	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserProfile_Height(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserProfile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserProfile_Weight(ctx context.Context, field graphql.CollectedField, obj *UserProfile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserProfile_Weight(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Weight, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*float64)
-	fc.Result = res
-	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserProfile_Weight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserProfile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7103,14 +7121,28 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createWorkout":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createWorkout(ctx, field)
-			})
 		case "createNutrition":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createNutrition(ctx, field)
 			})
+		case "deleteNutrition":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteNutrition(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createWorkout":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createWorkout(ctx, field)
+			})
+		case "deleteWorkout":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteWorkout(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7619,46 +7651,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var userProfileImplementors = []string{"UserProfile"}
-
-func (ec *executionContext) _UserProfile(ctx context.Context, sel ast.SelectionSet, obj *UserProfile) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userProfileImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UserProfile")
-		case "Age":
-			out.Values[i] = ec._UserProfile_Age(ctx, field, obj)
-		case "Height":
-			out.Values[i] = ec._UserProfile_Height(ctx, field, obj)
-		case "Weight":
-			out.Values[i] = ec._UserProfile_Weight(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8917,43 +8909,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalFloatContext(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalFloatContext(*v)
-	return graphql.WrapContextMarshaler(ctx, res)
-}
-
 func (ec *executionContext) marshalOGoal2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐGoal(ctx context.Context, sel ast.SelectionSet, v *Goal) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Goal(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalInt(*v)
-	return res
 }
 
 func (ec *executionContext) marshalONutrition2ᚖgithubᚗcomᚋFitBuddyᚋpkgᚋgraphqlᚐNutrition(ctx context.Context, sel ast.SelectionSet, v *Nutrition) graphql.Marshaler {

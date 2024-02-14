@@ -109,3 +109,15 @@ button:hover {
     max-width: 600px;
     margin: 20px;
 }
+
+.delete-workout-button {
+    background-color: #ff5454;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+}
+
+.delete-workout-button:hover {
+    background-color: #cc0000;
+}

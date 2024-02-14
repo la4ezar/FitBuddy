@@ -31,6 +31,18 @@ func (r *Repository) CreateWorkout(ctx context.Context, workout *Workout) error 
 	return nil
 }
 
+// DeleteWorkout deletes a workout entry in the database.
+func (r *Repository) DeleteWorkout(ctx context.Context, workoutID string) error {
+	if _, err := r.db.ExecContext(ctx, `
+        DELETE FROM workouts
+		WHERE id = $1
+    `, workoutID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetAllWorkouts retrieves all workouts for user with email and date from the database.
 func (r *Repository) GetAllWorkouts(ctx context.Context, email string, date time.Time) ([]*Workout, error) {
 	rows, err := r.db.QueryContext(ctx, `
