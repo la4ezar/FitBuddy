@@ -25,29 +25,18 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/cors"
 	"net/http"
-	"os"
 	"time"
 )
 
 func main() {
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Current working directory:", cwd)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	ctx := context.TODO()
-	databaseCfg := persistence.DatabaseConfig{
-		User:               "postgres",
-		Password:           "pgsql@12345",
-		Host:               "127.0.0.1",
-		Port:               "5432",
-		Name:               "fitbuddy",
-		SSLMode:            "disable",
-		MaxOpenConnections: 10,
-		MaxIdleConnections: 10,
-		ConnMaxLifetime:    30 * time.Second,
+	databaseCfg, err := persistence.LoadConfigFromYAML("config/database_config.env")
+	if err != nil {
+		exitOnError(err, "Error loading database config from YAML")
 	}
+
 	db, closeFunc, err := persistence.Configure(ctx, databaseCfg)
 	exitOnError(err, "Error while establishing the connection to the database")
 	defer func() {

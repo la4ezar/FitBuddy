@@ -13,29 +13,15 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	cwd, err := os.Getwd()
+	databaseCfg, err := persistence.LoadConfigFromYAML("config/database_config.env")
 	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Current working directory:", cwd)
-
-	databaseCfg := persistence.DatabaseConfig{
-		User:               "postgres",
-		Password:           "pgsql@12345",
-		Host:               "127.0.0.1",
-		Port:               "5432",
-		Name:               "fitbuddy",
-		SSLMode:            "disable",
-		MaxOpenConnections: 10,
-		MaxIdleConnections: 10,
-		ConnMaxLifetime:    30 * time.Second,
+		exitOnError(err, "Error loading database config from YAML")
 	}
 
 	db, closeFunc, err := persistence.Configure(ctx, databaseCfg)

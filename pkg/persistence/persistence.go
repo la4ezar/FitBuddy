@@ -16,13 +16,13 @@ const (
 )
 
 // Configure returns the instance of the database
-func Configure(context context.Context, conf DatabaseConfig) (*sql.DB, func() error, error) {
+func Configure(context context.Context, conf *DatabaseConfig) (*sql.DB, func() error, error) {
 	db, closeFunc, err := waitForPersistence(context, conf, RetryCount)
 
 	return db, closeFunc, err
 }
 
-func waitForPersistence(ctx context.Context, conf DatabaseConfig, retryCount int) (*sql.DB, func() error, error) {
+func waitForPersistence(ctx context.Context, conf *DatabaseConfig, retryCount int) (*sql.DB, func() error, error) {
 	var sqlDB *sql.DB
 	var err error
 

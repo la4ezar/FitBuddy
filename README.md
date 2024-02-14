@@ -23,7 +23,7 @@ git clone https://github.com/la4ezar/FitBuddy.git
 ```
 2. Start the Postgres Database
 ```bash
-./run_db.sh
+./hack/run_db.sh
 ```
 3. Run the Migrator which applies all the DB migrations
 ```bash

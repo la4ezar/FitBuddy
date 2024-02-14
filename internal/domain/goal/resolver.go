@@ -40,6 +40,7 @@ func (r *Resolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.G
 			Description: g.Description,
 			StartDate:   g.StartDate.Format("2006-01-02 15:04:05"),
 			EndDate:     g.EndDate.Format("2006-01-02 15:04:05"),
+			Completed:   g.Completed,
 		})
 	}
 
