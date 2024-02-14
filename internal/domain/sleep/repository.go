@@ -85,25 +85,6 @@ func (r *Repository) GetLogByID(ctx context.Context, sleepLogID string) (*Log, e
 	return &sleepLogItem, nil
 }
 
-// UpdateLog updates an existing sleep log entry in the database.
-func (r *Repository) UpdateLog(ctx context.Context, sleepLog *Log) error {
-	query := `
-		UPDATE sleep_logs
-		SET duration = $2, sleep_time = $3, wake_time = $4
-		WHERE id = $1
-	`
-
-	_, err := r.db.ExecContext(
-		ctx,
-		query,
-		sleepLog.ID,
-		sleepLog.SleepTime,
-		sleepLog.WakeTime,
-	)
-
-	return err
-}
-
 // DeleteLog deletes a sleep log entry from the database by ID.
 func (r *Repository) DeleteLog(ctx context.Context, sleepLogID string) error {
 	query := `

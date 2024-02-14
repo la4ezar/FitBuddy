@@ -18,16 +18,6 @@ func NewResolver(service *Service) *Resolver {
 	}
 }
 
-// CreateCoachMutation is a GraphQL mutation to create a new coach.
-func (r *Resolver) CreateCoachMutation(ctx context.Context, input CreateCoachInput) (*Coach, error) {
-	return r.service.CreateCoach(ctx, input.Name, input.Specialty)
-}
-
-// GetCoachQuery is a GraphQL query to retrieve a coach by ID.
-func (r *Resolver) GetCoachQuery(ctx context.Context, coachID string) (*Coach, error) {
-	return r.service.GetCoachByID(ctx, coachID)
-}
-
 // GetAllCoaches is a GraphQL query to retrieve all coaches.
 func (r *Resolver) GetAllCoaches(ctx context.Context) ([]*graphql.Coach, error) {
 	log.C(ctx).Info("Getting all coaches...")
@@ -89,7 +79,7 @@ func (r *Resolver) BookCoach(ctx context.Context, email, coachName string) (bool
 	return true, nil
 }
 
-// UnbookCoach is a booking a coach with name
+// UnbookCoach is an unbooking a coach with name
 func (r *Resolver) UnbookCoach(ctx context.Context, email, coachName string) (bool, error) {
 	log.C(ctx).Infof("Unbooking a coach with name %q for user with email %q...", coachName, email)
 
@@ -99,31 +89,4 @@ func (r *Resolver) UnbookCoach(ctx context.Context, email, coachName string) (bo
 	log.C(ctx).Infof("Successfully unbooked a coach with name %q for user with email %q", coachName, email)
 
 	return true, nil
-}
-
-// UpdateCoachMutation is a GraphQL mutation to update an existing coach.
-func (r *Resolver) UpdateCoachMutation(ctx context.Context, input UpdateCoachInput) (*Coach, error) {
-	return r.service.UpdateCoach(ctx, input.CoachID, input.Name, input.Specialty)
-}
-
-// DeleteCoachMutation is a GraphQL mutation to delete a coach by ID.
-func (r *Resolver) DeleteCoachMutation(ctx context.Context, coachID string) (string, error) {
-	err := r.service.DeleteCoach(ctx, coachID)
-	if err != nil {
-		return "", err
-	}
-	return "Coach deleted successfully", nil
-}
-
-// CreateCoachInput is the input structure for creating a new coach.
-type CreateCoachInput struct {
-	Name      string `json:"name"`
-	Specialty string `json:"specialty"`
-}
-
-// UpdateCoachInput is the input structure for updating an existing coach.
-type UpdateCoachInput struct {
-	CoachID   string `json:"coachId"`
-	Name      string `json:"name"`
-	Specialty string `json:"specialty"`
 }

@@ -71,31 +71,3 @@ func (r *Repository) AddScore(ctx context.Context, email string, score float64) 
 	_, err := r.db.ExecContext(ctx, query, email, score)
 	return err
 }
-
-// GetTopScores retrieves the top N leaderboard entries.
-func (r *Repository) GetTopScores(ctx context.Context, limit int) ([]*LeaderboardUser, error) {
-	query := `
-		SELECT user_id, username, score
-		FROM leaderboard
-		ORDER BY score DESC
-		LIMIT $1
-	`
-
-	rows, err := r.db.QueryContext(ctx, query, limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var topScores []*LeaderboardUser
-	for rows.Next() {
-		var l LeaderboardUser
-		//err := rows.Scan(&l.UserID, &l.Username, &l.Score)
-		if err != nil {
-			return nil, err
-		}
-		topScores = append(topScores, &l)
-	}
-
-	return topScores, nil
-}

@@ -40,7 +40,6 @@ func (r *Resolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.G
 			Description: g.Description,
 			StartDate:   g.StartDate.Format("2006-01-02 15:04:05"),
 			EndDate:     g.EndDate.Format("2006-01-02 15:04:05"),
-			Completed:   g.Completed,
 		})
 	}
 
@@ -97,41 +96,4 @@ func (r *Resolver) CompleteGoal(ctx context.Context, userEmail, goalID string) (
 	log.C(ctx).Infof("Successfully added score to email %q...", userEmail)
 
 	return true, nil
-}
-
-// GetGoalQuery is a GraphQL query to retrieve a fitness or wellness goal by ID.
-func (r *Resolver) GetGoalQuery(ctx context.Context, goalID string) (*Goal, error) {
-	return r.service.GetGoalByID(ctx, goalID)
-}
-
-// UpdateGoalMutation is a GraphQL mutation to update an existing fitness or wellness goal.
-func (r *Resolver) UpdateGoalMutation(ctx context.Context, input UpdateGoalInput) (*Goal, error) {
-	return r.service.UpdateGoal(ctx, input.GoalID, input.Title, input.Description, input.StartDate, input.EndDate)
-}
-
-// DeleteGoalMutation is a GraphQL mutation to delete a fitness or wellness goal by ID.
-func (r *Resolver) DeleteGoalMutation(ctx context.Context, goalID string) (string, error) {
-	err := r.service.DeleteGoal(ctx, goalID)
-	if err != nil {
-		return "", err
-	}
-	return "Goal deleted successfully", nil
-}
-
-// CreateGoalInput is the input structure for creating a new fitness or wellness goal.
-type CreateGoalInput struct {
-	UserID      string    `json:"userId"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	StartDate   time.Time `json:"startDate"`
-	EndDate     time.Time `json:"endDate"`
-}
-
-// UpdateGoalInput is the input structure for updating an existing fitness or wellness goal.
-type UpdateGoalInput struct {
-	GoalID      string    `json:"goalId"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	StartDate   time.Time `json:"startDate"`
-	EndDate     time.Time `json:"endDate"`
 }

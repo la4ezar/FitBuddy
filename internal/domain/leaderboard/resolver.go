@@ -39,23 +39,3 @@ func (r *Resolver) GetLeaderboardUsers(ctx context.Context) ([]*graphql.Leaderbo
 
 	return gqlLeaderboardUsers, nil
 }
-
-// AddScoreMutation is a GraphQL mutation to add a score to the leaderboard for a specific user.
-func (r *Resolver) AddScoreMutation(ctx context.Context, input AddScoreInput) (string, error) {
-	err := r.service.AddScore(ctx, input.UserID, input.Score)
-	if err != nil {
-		return "", err
-	}
-	return "Score added to the leaderboard successfully", nil
-}
-
-// GetTopScoresQuery is a GraphQL query to retrieve the top N leaderboard entries.
-func (r *Resolver) GetTopScoresQuery(ctx context.Context, limit int) ([]*LeaderboardUser, error) {
-	return r.service.GetTopScores(ctx, limit)
-}
-
-// AddScoreInput is the input structure for adding a score to the leaderboard.
-type AddScoreInput struct {
-	UserID string  `json:"userId"`
-	Score  float64 `json:"score"`
-}

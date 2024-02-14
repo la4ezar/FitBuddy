@@ -46,16 +46,6 @@ func (r *Resolver) CreateUser(ctx context.Context, email, password string) (*gra
 	return gqlUser, nil
 }
 
-// GetUserQuery is a GraphQL query to retrieve a user by ID.
-func (r *Resolver) GetUserQuery(ctx context.Context, email string) (*User, error) {
-	return r.service.GetUserByEmail(ctx, email)
-}
-
-// UpdateUserMutation is a GraphQL mutation to update an existing user.
-func (r *Resolver) UpdateUserMutation(ctx context.Context, input UpdateUserInput) (*User, error) {
-	return r.service.UpdateUser(ctx, input.Email, input.Password)
-}
-
 func (r *Resolver) LoginUser(ctx context.Context, email, password string) (*graphql.User, error) {
 	log.C(ctx).Infof("Logging user with email %q...", email)
 	u, err := r.service.LoginUser(ctx, email, password)
@@ -84,26 +74,4 @@ func (r *Resolver) LogoutUser(ctx context.Context, email string) (*graphql.User,
 		Email: u.Email,
 	}
 	return gqlUser, nil
-}
-
-// DeleteUserMutation is a GraphQL mutation to delete a user by ID.
-func (r *Resolver) DeleteUserMutation(ctx context.Context, userID string) (string, error) {
-	if err := r.service.DeleteUser(ctx, userID); err != nil {
-		return "", err
-	}
-	return "User deleted successfully", nil
-}
-
-// CreateUserInput represents the input for the CreateUserMutation.
-type CreateUserInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Logged   bool   `json:"logged"`
-}
-
-// UpdateUserInput represents the input for the UpdateUserMutation.
-type UpdateUserInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Logged   bool   `json:"logged"`
 }

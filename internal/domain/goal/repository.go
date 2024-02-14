@@ -33,6 +33,7 @@ func (r *Repository) CreateGoal(ctx context.Context, email string, goal *Goal) e
 	return nil
 }
 
+// GetGoalsByEmail gets all goals by user email from the database.
 func (r *Repository) GetGoalsByEmail(ctx context.Context, userEmail string) ([]*Goal, error) {
 	query := "SELECT id, name, description, start_date, end_date, completed FROM goals WHERE user_id = (SELECT id FROM users WHERE email = $1)"
 	rows, err := r.db.QueryContext(ctx, query, userEmail)
@@ -114,26 +115,6 @@ func (r *Repository) CompleteGoalByID(ctx context.Context, goalID string) error 
 	}
 
 	return nil
-}
-
-// UpdateGoal updates an existing fitness or wellness goal in the database.
-func (r *Repository) UpdateGoal(ctx context.Context, goal *Goal) error {
-	query := `
-		UPDATE goals
-		SET title = $2, description = $3, start_date = $4, end_date = $5
-		WHERE id = $1
-	`
-
-	_, err := r.db.ExecContext(
-		ctx,
-		query,
-		goal.ID,
-		goal.Description,
-		goal.StartDate,
-		goal.EndDate,
-	)
-
-	return err
 }
 
 // DeleteGoal deletes a fitness or wellness goal from the database by ID.

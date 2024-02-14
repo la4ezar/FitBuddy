@@ -32,6 +32,7 @@ func (s *Service) Create(ctx context.Context, email string, score int) error {
 	return nil
 }
 
+// GetLeaderboardUsers retrieves the leaderboard
 func (s *Service) GetLeaderboardUsers(ctx context.Context) ([]*LeaderboardUser, error) {
 	return s.repository.GetLeaderboardUsers(ctx)
 }
@@ -43,13 +44,4 @@ func (s *Service) AddScore(ctx context.Context, userEmail string, score float64)
 	}
 
 	return s.repository.AddScore(ctx, userEmail, score)
-}
-
-// GetTopScores retrieves the top N leaderboard entries.
-func (s *Service) GetTopScores(ctx context.Context, limit int) ([]*LeaderboardUser, error) {
-	if limit <= 0 {
-		return nil, errors.New("limit must be a positive number")
-	}
-
-	return s.repository.GetTopScores(ctx, limit)
 }

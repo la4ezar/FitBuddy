@@ -37,42 +37,13 @@ func (s *Service) CreateGoal(ctx context.Context, userEmail, name, description s
 	return newGoal, nil
 }
 
+// GetGoals retrieves all goals for user with email
 func (s *Service) GetGoals(ctx context.Context, userEmail string) ([]*Goal, error) {
 	if userEmail == "" {
 		return nil, errors.New("user email should not be empty")
 	}
 
 	return s.repository.GetGoalsByEmail(ctx, userEmail)
-}
-
-// GetGoalByID retrieves a fitness or wellness goal by ID.
-func (s *Service) GetGoalByID(ctx context.Context, goalID string) (*Goal, error) {
-	return s.repository.GetGoalByID(ctx, goalID)
-}
-
-// UpdateGoal updates an existing fitness or wellness goal.
-func (s *Service) UpdateGoal(ctx context.Context, goalID, title, description string, startDate, endDate time.Time) (*Goal, error) {
-	if title == "" || description == "" {
-		return nil, errors.New("title and description are required")
-	}
-
-	existingGoal, err := s.repository.GetGoalByID(ctx, goalID)
-	if err != nil {
-		return nil, err
-	}
-	if existingGoal == nil {
-		return nil, errors.New("goal not found")
-	}
-
-	existingGoal.Description = description
-	existingGoal.StartDate = startDate
-	existingGoal.EndDate = endDate
-
-	if err := s.repository.UpdateGoal(ctx, existingGoal); err != nil {
-		return nil, err
-	}
-
-	return existingGoal, nil
 }
 
 // DeleteGoal deletes a fitness or wellness goal by ID.

@@ -28,27 +28,6 @@ func (r *Repository) CreateUser(ctx context.Context, u *User) error {
 	return err
 }
 
-//// GetUserByID retrieves a user from the database by ID.
-//func (r *Repository) GetUserByID(ctx context.Context, userID string) (*User, error) {
-//	query := `
-//		SELECT id, email, password, logged
-//		FROM users
-//		WHERE id = $1
-//	`
-//
-//	row := r.db.QueryRowContext(ctx, query, userID)
-//
-//	var u User
-//	err := row.Scan(&u.ID, &u.Email, &u.Password, &u.Logged)
-//	if err == sql.ErrNoRows {
-//		return nil, nil // User not found
-//	} else if err != nil {
-//		return nil, err
-//	}
-//
-//	return &u, nil
-//}
-
 // GetUserByEmail retrieves a user from the database by email.
 func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	query := `
@@ -79,16 +58,5 @@ func (r *Repository) UpdateUser(ctx context.Context, u *User) error {
 	`
 
 	_, err := r.db.ExecContext(ctx, query, u.ID, u.Email, u.Password, u.Logged)
-	return err
-}
-
-// DeleteUser deletes a user from the database by email.
-func (r *Repository) DeleteUser(ctx context.Context, email string) error {
-	query := `
-		DELETE FROM users
-		WHERE email = $1
-	`
-
-	_, err := r.db.ExecContext(ctx, query, email)
 	return err
 }

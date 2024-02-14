@@ -12,14 +12,9 @@ type Query {
 
 
     getAllExercises: [Exercise!]!
-    getUserByID(userID: ID!): User
-    getCoachByID(coachID: ID!): Coach
     getAllWorkoutsByEmailAndDate(email: String!, date: String!): [Workout!]!
     getAllNutritionsByEmailAndDate(email: String!, date: String!): [Nutrition!]!
     getAllMeals: [Meal!]!
-
-
-    getNutritionLogByID(nutritionLogID: ID!): Nutrition
 
     getLeaderboardUsers: [LeaderboardUser!]!
 
@@ -36,7 +31,6 @@ type Mutation {
     # Coaches
     bookCoach(email: ID!, coachName: ID!): Boolean!
     unbookCoach(email: ID!, coachName: ID!): Boolean!
-    createCoach(name: String!, specialty: String!): Coach
     # Goals
     createGoal(name: String!, description: String!, startDate: String!, endDate: String!, email: String!): Goal
     completeGoal(userEmail: String!, goalID: ID!): Boolean!

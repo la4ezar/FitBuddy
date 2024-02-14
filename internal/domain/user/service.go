@@ -40,37 +40,6 @@ func (s *Service) CreateUser(ctx context.Context, email, password string) (*User
 	return newUser, nil
 }
 
-// GetUserByEmail retrieves a user by ID.
-func (s *Service) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	return s.repository.GetUserByEmail(ctx, email)
-}
-
-// UpdateUser updates an existing user.
-func (s *Service) UpdateUser(ctx context.Context, email, password string) (*User, error) {
-	if email == "" {
-		return nil, errors.New("email is required")
-	}
-
-	existingUser, err := s.repository.GetUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-	if existingUser == nil {
-		return nil, errors.New("user not found")
-	}
-
-	existingUser.Email = email
-	if password != "" {
-		existingUser.Password = email
-	}
-
-	if err := s.repository.UpdateUser(ctx, existingUser); err != nil {
-		return nil, err
-	}
-
-	return existingUser, nil
-}
-
 // LoginUser login an existing user.
 func (s *Service) LoginUser(ctx context.Context, email, password string) (*User, error) {
 	if email == "" {
@@ -121,17 +90,4 @@ func (s *Service) LogoutUser(ctx context.Context, email string) (*User, error) {
 	}
 
 	return existingUser, nil
-}
-
-// DeleteUser deletes a user by ID.
-func (s *Service) DeleteUser(ctx context.Context, email string) error {
-	existingUser, err := s.repository.GetUserByEmail(ctx, email)
-	if err != nil {
-		return err
-	}
-	if existingUser == nil {
-		return errors.New("user not found")
-	}
-
-	return s.repository.DeleteUser(ctx, email)
 }
