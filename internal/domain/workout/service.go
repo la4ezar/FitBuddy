@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Service handles business logic related to workout entries.
+// Service handles business logic related to Workout entries.
 type Service struct {
 	repository *Repository
 }

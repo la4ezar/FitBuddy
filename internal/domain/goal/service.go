@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Service handles business logic related to fitness and wellness goals.
+// Service handles business logic related to fitness goals.
 type Service struct {
 	repository *Repository
 }
@@ -18,7 +18,7 @@ func NewService(repository *Repository) *Service {
 	}
 }
 
-// CreateGoal creates a new fitness or wellness goal.
+// CreateGoal creates a new fitness goal.
 func (s *Service) CreateGoal(ctx context.Context, userEmail, name, description string, startDate, endDate time.Time) (*Goal, error) {
 	if userEmail == "" {
 		return nil, errors.New("user email should not be empty")
@@ -46,7 +46,7 @@ func (s *Service) GetGoals(ctx context.Context, userEmail string) ([]*Goal, erro
 	return s.repository.GetGoalsByEmail(ctx, userEmail)
 }
 
-// DeleteGoal deletes a fitness or wellness goal by ID.
+// DeleteGoal deletes a fitness goal by ID.
 func (s *Service) DeleteGoal(ctx context.Context, goalID string) error {
 	existingGoal, err := s.repository.GetGoalByID(ctx, goalID)
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *Service) DeleteGoal(ctx context.Context, goalID string) error {
 	return s.repository.DeleteGoal(ctx, goalID)
 }
 
-// CompleteGoal deletes a fitness or wellness goal by ID.
+// CompleteGoal deletes a fitness goal by ID.
 func (s *Service) CompleteGoal(ctx context.Context, goalID string) error {
 	existingGoal, err := s.repository.GetGoalByID(ctx, goalID)
 	if err != nil {

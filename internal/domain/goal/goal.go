@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Goal represents a fitness or wellness goal in the application.
+// Goal represents a fitness goal in the application.
 type Goal struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`

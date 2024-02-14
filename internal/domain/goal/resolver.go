@@ -22,7 +22,7 @@ func NewResolver(service *Service, leaderboardService *leaderboard.Service) *Res
 	}
 }
 
-// GetGoals is a GraphQL query to get all goals for user with given email.
+// GetGoals is a gets all goals for user with given email.
 func (r *Resolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.Goal, error) {
 	log.C(ctx).Infof("Getting all goals for user with email %q...", userEmail)
 
@@ -47,7 +47,7 @@ func (r *Resolver) GetGoals(ctx context.Context, userEmail string) ([]*graphql.G
 	return gqlGoals, nil
 }
 
-// CreateGoal is a GraphQL mutation to create a new fitness or wellness goal.
+// CreateGoal is a creates a new fitness goal.
 func (r *Resolver) CreateGoal(ctx context.Context, userEmail, name, description string, startDate, endDate time.Time) (*graphql.Goal, error) {
 	log.C(ctx).Infof("Creating goal with name %q, description %q, start date %q and end date %q for user with email %q...", name, description, startDate.Format("2006-01-02 15:04:05"), endDate.Format("2006-01-02 15:04:05"), userEmail)
 
@@ -66,7 +66,7 @@ func (r *Resolver) CreateGoal(ctx context.Context, userEmail, name, description 
 	}, nil
 }
 
-// DeleteGoal is a GraphQL mutation to delete a goal.
+// DeleteGoal is a deletes a goal.
 func (r *Resolver) DeleteGoal(ctx context.Context, goalID string) (bool, error) {
 	log.C(ctx).Infof("Deleting goal with ID %q...", goalID)
 
@@ -79,7 +79,7 @@ func (r *Resolver) DeleteGoal(ctx context.Context, goalID string) (bool, error) 
 	return true, nil
 }
 
-// CompleteGoal is a GraphQL mutation to complete a goal.
+// CompleteGoal is completes a goal.
 func (r *Resolver) CompleteGoal(ctx context.Context, userEmail, goalID string) (bool, error) {
 	log.C(ctx).Infof("Completing goal with ID %q...", goalID)
 

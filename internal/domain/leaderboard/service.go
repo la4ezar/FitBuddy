@@ -10,7 +10,7 @@ type Service struct {
 	repository *Repository
 }
 
-// NewService creates a new LeaderboardService instance.
+// NewService creates a new Service instance.
 func NewService(repository *Repository) *Service {
 	return &Service{
 		repository: repository,

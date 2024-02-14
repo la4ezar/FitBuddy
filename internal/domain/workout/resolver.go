@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Resolver handles GraphQL queries and mutations for the Log aggregate.
+// Resolver handles GraphQL queries and mutations for the Workout aggregate.
 type Resolver struct {
 	service *Service
 }

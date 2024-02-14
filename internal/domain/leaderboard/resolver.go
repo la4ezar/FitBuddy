@@ -11,14 +11,14 @@ type Resolver struct {
 	service *Service
 }
 
-// NewLeaderboardResolver creates a new LeaderboardResolver instance.
-func NewLeaderboardResolver(leaderboardService *Service) *Resolver {
+// NewResolver creates a new Resolver instance.
+func NewResolver(leaderboardService *Service) *Resolver {
 	return &Resolver{
 		service: leaderboardService,
 	}
 }
 
-// GetLeaderboardUsers is a GraphQL query to retrieve leaderboard content.
+// GetLeaderboardUsers is a retrieve leaderboard content.
 func (r *Resolver) GetLeaderboardUsers(ctx context.Context) ([]*graphql.LeaderboardUser, error) {
 	log.C(ctx).Info("Getting leaderboard...")
 

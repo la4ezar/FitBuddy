@@ -80,7 +80,7 @@ func main() {
 	goalResolver := goal.NewResolver(goalService, leaderboardService)
 	nutritionResolver := nutrition.NewResolver(nutritionService)
 	mealResolver := meal.NewResolver(mealService)
-	leaderboardResolver := leaderboard.NewLeaderboardResolver(leaderboardService)
+	leaderboardResolver := leaderboard.NewResolver(leaderboardService)
 
 	mainRouter := mux.NewRouter()
 

@@ -11,7 +11,7 @@ type Repository struct {
 	db *sql.DB
 }
 
-// NewRepository creates a new LeaderboardRepository instance.
+// NewRepository creates a new Repository instance.
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
 		db: db,

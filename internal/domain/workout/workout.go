@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Workout represents a workout entry in the application.
+// Workout represents a Workout entry in the application.
 type Workout struct {
 	ID           string    `json:"id"`
 	UserEmail    string    `json:"userEmail"`

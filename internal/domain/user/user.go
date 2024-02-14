@@ -2,7 +2,7 @@ package user
 
 import "github.com/google/uuid"
 
-// User represents a user in the fitness and wellness application.
+// User represents a user in the fitness application.
 type User struct {
 	ID       string `json:"id"`
 	Email    string `json:"email"`
