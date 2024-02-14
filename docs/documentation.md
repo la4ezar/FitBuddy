@@ -39,6 +39,9 @@ FitBuddy is your dedicated companion for achieving health and fitness goals. Gai
 - **Coaches:**
     - Access the coaches page through the "Coaches" tab.
     - View coach details (picture, name, specialty, availability).
+    - Book coach with Booking functionality
+
+- **Bookings**
     - Book a coach by clicking "Book now" (availability permitting).
     - Unbook coaches, with restrictions on coaches booked by other users.
     - Ability to book more than one coach if needed.
