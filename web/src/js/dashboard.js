@@ -1,26 +1,10 @@
-const email = getCookie();
-
-if (email) {
-    document.getElementById('email').textContent = email;
-} else {
-    document.title = '401 Unauthorized';
-    document.body.innerHTML = '<h1>401 Unauthorized</h1><p>You are not authorized to access this page.</p>';
-}
-
-function getCookie() {
-    const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
-
-    if (emailCookie) {
-        console.log('Email:', emailCookie);
-    } else {
-        console.log('Email cookie not found.');
-    }
-
-    return emailCookie
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     const graphqlEndpoint = 'http://localhost:8080/graphql';
+    const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (!email) {
+        return
+    }
+    document.getElementById('email').textContent = email;
 
     let currentDate = new Date()
     currentDate.setHours(+currentDate.getHours()+2)

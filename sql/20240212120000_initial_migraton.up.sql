@@ -106,10 +106,16 @@ CREATE TABLE coaches
 INSERT INTO coaches (id, image_url, name, specialty)
 VALUES ('00000000-0000-0000-0000-000000000001',
         'https://media.istockphoto.com/id/856797530/photo/portrait-of-a-beautiful-woman-at-the-gym.jpg?s=612x612&w=0&k=20&c=0wMa1MYxt6HHamjd66d5__XGAKbJFDFQyu9LCloRsYU=',
-        'Maria Ilieva', 'Fitness Coach'),
+        'Maria Ivailova', 'Fitness Coach'),
        ('00000000-0000-0000-0000-000000000002',
         'https://media.istockphoto.com/id/1072395722/photo/fitness-trainer-at-gym.jpg?s=612x612&w=0&k=20&c=3VBLCgbxG3bGNRp9Sc3tN_7G-g_DxXhGk9rhuZo-jkE=',
-        'Atanas Kolev', 'Nutrition Coach');
+        'Atanas Dimirov', 'Nutrition Coach'),
+       ('00000000-0000-0000-0000-000000000003',
+        'https://nationalpti.org/wp-content/uploads/2014/02/Personal-Trainer.jpg',
+        'Georgi Jivkov', 'Stretching Coach'),
+       ('00000000-0000-0000-0000-000000000004',
+        'https://www.heart.org/-/media/AHA/H4GM/Article-Images/meditation.png',
+        'Gergana Ivanova', 'Wellness Coach');
 
 CREATE TABLE bookings
 (

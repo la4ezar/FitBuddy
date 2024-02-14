@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (!email) {
+        return
+    }
+
     let currentDate = new Date();
-    const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
     const graphqlEndpoint = 'http://localhost:8080/graphql';
 
     document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
@@ -79,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const gqlMutation = `
             mutation {
-                createSleepLog(userEmail: "${emailCookie}", sleepLogTime: "${sleepTime}", wakeTime: "${wakeTime}", date: "${newDate.toISOString()}") {
+                createSleepLog(userEmail: "${email}", sleepLogTime: "${sleepTime}", wakeTime: "${wakeTime}", date: "${newDate.toISOString()}") {
                     ID
                 }
             }
@@ -118,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const gqlQuery = `
             query {
-                getSleepLogByEmailAndDate(userEmail: "${emailCookie}", date: "${newDate.toISOString()}") {
+                getSleepLogByEmailAndDate(userEmail: "${email}", date: "${newDate.toISOString()}") {
                     ID
                     SleepTime
                     WakeTime

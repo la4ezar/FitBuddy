@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Get the current date
+    const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (!email) {
+        return
+    }
+
     let currentDate = new Date();
 
     // Display the current date
@@ -70,13 +74,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('workout-form').addEventListener('submit', async function (event) {
         event.preventDefault();
 
-        const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
-        if (emailCookie) {
-            console.log('Email:', emailCookie);
-        } else {
-            console.log('Email cookie not found.');
-        }
-
         const exerciseInput = document.getElementById('exercise');
         const setsInput = document.getElementById('sets');
         const repsInput = document.getElementById('reps');
@@ -93,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // GraphQL mutation to create a workout
         const gqlMutation = `
             mutation {
-                createWorkout(email: "${emailCookie}", exercise: "${exercise}", date: "${date}", sets: ${sets}, reps: ${reps}, weight: ${weight}) {
+                createWorkout(email: "${email}", exercise: "${exercise}", date: "${date}", sets: ${sets}, reps: ${reps}, weight: ${weight}) {
                     ID
                 }
             }
@@ -125,18 +122,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function fetchAllWorkouts(date) {
-        const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
-        if (emailCookie) {
-            console.log('Email:', emailCookie);
-        } else {
-            console.log('Email cookie not found.');
-        }
-        // Replace 'your-graphql-endpoint' with your actual GraphQL endpoint
         const graphqlEndpoint = 'http://localhost:8080/graphql';
 
         const gqlQuery = `
             query {
-                getAllWorkoutsByEmailAndDate(email: "${emailCookie}", date: "${date}") {
+                getAllWorkoutsByEmailAndDate(email: "${email}", date: "${date}") {
                     ID
                     UserEmail
                     ExerciseName

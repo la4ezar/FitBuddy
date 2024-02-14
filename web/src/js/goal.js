@@ -1,9 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (!email) {
+        return
+    }
+
     const goalForm = document.getElementById('goal-form');
     const goalsListContainer = document.querySelector('.goals-list');
 
     const graphqlEndpoint = 'http://localhost:8080/graphql';
-    const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
 
     goalForm.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -27,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const createGoal = (name, description, startDate, endDate) => {
         const createGoalMutation = `
             mutation {
-                createGoal(name: "${name}", description: "${description}", startDate: "${startDate}", endDate: "${endDate}", email: "${emailCookie}") {
+                createGoal(name: "${name}", description: "${description}", startDate: "${startDate}", endDate: "${endDate}", email: "${email}") {
                     ID
                 }
             }
@@ -56,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const fetchAndDisplayGoals = () => {
         const getGoalsQuery = `
             query {
-                getGoals(email: "${emailCookie}") {
+                getGoals(email: "${email}") {
                     ID
                     Name
                     Description

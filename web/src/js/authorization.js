@@ -1,17 +1,12 @@
-const email = getCookie();
-if (!email) {
-    document.title = '401 Unauthorized';
-    document.body.innerHTML = '<h1>401 Unauthorized</h1><p>You are not authorized to access this page.</p>';
+function isLoggedIn() {
+    const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    return Boolean(emailCookie);
 }
 
-function getCookie() {
-    const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+function redirectToLogin() {
+    window.location.href = 'login.html';  // Redirect to the login page
+}
 
-    if (emailCookie) {
-        console.log('Email:', emailCookie);
-    } else {
-        console.log('Email cookie not found.');
-    }
-
-    return emailCookie
+if (!isLoggedIn() && !window.location.href.includes('login.html') && !window.location.href.includes('registration.html')) {
+    redirectToLogin();
 }

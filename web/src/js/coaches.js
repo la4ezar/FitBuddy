@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const coachesTableBody = document.querySelector('.coaches-container tbody');
-
+    const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (!email) {
+        return
+    }
     const graphqlEndpoint = 'http://localhost:8080/graphql';
+    const coachesTableBody = document.querySelector('.coaches-container tbody');
 
     function fetchCoaches() {
         const gqlQuery = `
@@ -20,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: gqlQuery }),
+            body: JSON.stringify({query: gqlQuery}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -35,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    function isBookedByCurrentUser(coach, email) {
+    function isBookedByCurrentUser(coach) {
         const isBookedQuery = `
             query {
                 isCoachBookedByUser(coachName: "${coach.Name}", userEmail: "${email}")
@@ -47,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: isBookedQuery }),
+            body: JSON.stringify({query: isBookedQuery}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -74,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: isBookedQuery }),
+            body: JSON.stringify({query: isBookedQuery}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -118,14 +121,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const bookNowButton = document.createElement('button');
             bookNowButton.textContent = 'Book Now';
 
-            const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
 
-            isBookedByCurrentUser(coach, emailCookie)
+            isBookedByCurrentUser(coach)
                 .then(isBooked => {
                     if (isBooked) {
                         const unbookButton = document.createElement('button');
                         unbookButton.textContent = 'Unbook Now';
-                        unbookButton.addEventListener('click', () => unbookCoach(coach.Name, emailCookie));
+                        unbookButton.addEventListener('click', () => unbookCoach(coach.Name, email));
                         bookNowCell.appendChild(unbookButton);
                     } else {
                         isBookedByAnyUser(coach)
@@ -137,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 } else {
                                     const bookNowButton = document.createElement('button');
                                     bookNowButton.textContent = 'Book Now';
-                                    bookNowButton.addEventListener('click', () => bookCoach(coach.Name, emailCookie));
+                                    bookNowButton.addEventListener('click', () => bookCoach(coach.Name, email));
                                     bookNowCell.appendChild(bookNowButton);
                                 }
                             })
@@ -157,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function bookCoach(coachName, email) {
+    function bookCoach(coachName) {
         const bookCoachMutation = `
             mutation {
                 bookCoach(email: "${email}", coachName: "${coachName}")
@@ -169,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: bookCoachMutation }),
+            body: JSON.stringify({query: bookCoachMutation}),
         })
             .then(response => {
                 if (!response.ok) {
@@ -196,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    function unbookCoach(coachName, email) {
+    function unbookCoach(coachName) {
         const unbookCoachMutation = `
             mutation {
                 unbookCoach(email: "${email}", coachName: "${coachName}")
@@ -208,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: unbookCoachMutation }),
+            body: JSON.stringify({query: unbookCoachMutation}),
         })
             .then(response => {
                 if (!response.ok) {

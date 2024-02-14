@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const forumContainer = document.querySelector('.post-display');
-    const emailCookie = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
-    if (emailCookie) {
-        console.log('Email:', emailCookie);
-    } else {
-        console.log('Email cookie not found.');
+    const email = document.cookie.split('; ').find(row => row.startsWith('email=')).split('=')[1];
+    if (!email) {
+        return
     }
+    const forumContainer = document.querySelector('.post-display');
+
     const graphqlEndpoint = 'http://localhost:8080/graphql';
 
     fetchAllPosts();
@@ -19,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const gqlMutation = `
             mutation {
-                createPost(email: "${emailCookie}", title: "${title}", content: "${content}") {
+                createPost(email: "${email}", title: "${title}", content: "${content}") {
                     ID
                     UserEmail
                     Title
@@ -122,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 postElement.appendChild(contentElement);
                 postElement.appendChild(userElement);
 
-                if (emailCookie === post.UserEmail) {
+                if (email === post.UserEmail) {
                     const deleteButton = document.createElement('button');
                     deleteButton.textContent = 'X';
                     deleteButton.className = 'delete-post-button';
