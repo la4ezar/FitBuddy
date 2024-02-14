@@ -53,8 +53,3 @@ func (s *Service) DeleteNutrition(ctx context.Context, nutritionID string) error
 func (s *Service) GetAllNutritions(ctx context.Context, email string, date time.Time) ([]*Nutrition, error) {
 	return s.repository.GetAllNutritions(ctx, email, date)
 }
-
-// GetAllMeals retrieves all meals.
-func (s *Service) GetAllMeals(ctx context.Context) ([]*Meal, error) {
-	return s.repository.GetAllMeals(ctx)
-}

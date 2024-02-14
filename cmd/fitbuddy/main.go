@@ -6,11 +6,13 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/FitBuddy/internal/domain"
+	"github.com/FitBuddy/internal/domain/booking"
 	"github.com/FitBuddy/internal/domain/coach"
 	"github.com/FitBuddy/internal/domain/exercise"
 	"github.com/FitBuddy/internal/domain/forum"
 	"github.com/FitBuddy/internal/domain/goal"
 	"github.com/FitBuddy/internal/domain/leaderboard"
+	"github.com/FitBuddy/internal/domain/meal"
 	"github.com/FitBuddy/internal/domain/nutrition"
 	"github.com/FitBuddy/internal/domain/sleep"
 	"github.com/FitBuddy/internal/domain/user"
@@ -46,32 +48,38 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	coachRepository := coach.NewRepository(db)
+	bookingRepository := booking.NewRepository(db)
 	exerciseRepository := exercise.NewRepository(db)
 	workoutRepository := workout.NewRepository(db)
 	sleepRepository := sleep.NewRepository(db)
 	forumRepository := forum.NewRepository(db)
 	goalRepository := goal.NewRepository(db)
 	nutritionRepository := nutrition.NewRepository(db)
+	mealRepository := meal.NewRepository(db)
 	leaderboardRepository := leaderboard.NewRepository(db)
 
 	userService := user.NewService(userRepository)
 	coachService := coach.NewService(coachRepository)
+	bookingService := booking.NewService(bookingRepository)
 	exerciseService := exercise.NewService(exerciseRepository)
 	workoutService := workout.NewService(workoutRepository)
 	sleepService := sleep.NewService(sleepRepository)
 	forumService := forum.NewService(forumRepository)
 	goalService := goal.NewService(goalRepository)
 	nutritionService := nutrition.NewService(nutritionRepository)
+	mealService := meal.NewService(mealRepository)
 	leaderboardService := leaderboard.NewService(leaderboardRepository)
 
 	userResolver := user.NewResolver(userService, leaderboardService)
 	coachResolver := coach.NewResolver(coachService)
+	bookingResolver := booking.NewResolver(bookingService)
 	exerciseResolver := exercise.NewResolver(exerciseService)
 	workoutResolver := workout.NewResolver(workoutService)
 	sleepResolver := sleep.NewResolver(sleepService)
 	forumResolver := forum.NewResolver(forumService)
 	goalResolver := goal.NewResolver(goalService, leaderboardService)
-	nutritionResolver := nutrition.NewNutritionResolver(nutritionService)
+	nutritionResolver := nutrition.NewResolver(nutritionService)
+	mealResolver := meal.NewResolver(mealService)
 	leaderboardResolver := leaderboard.NewLeaderboardResolver(leaderboardService)
 
 	mainRouter := mux.NewRouter()
@@ -79,7 +87,7 @@ func main() {
 	PlaygroundAPIEndpoint := "/graphql"
 	mainRouter.HandleFunc("/", playground.Handler("Dataloader", PlaygroundAPIEndpoint))
 
-	rootResolver := domain.NewRootResolver(userResolver, coachResolver, exerciseResolver, forumResolver, goalResolver, leaderboardResolver, nutritionResolver, sleepResolver, workoutResolver)
+	rootResolver := domain.NewRootResolver(userResolver, coachResolver, bookingResolver, exerciseResolver, forumResolver, goalResolver, leaderboardResolver, nutritionResolver, mealResolver, sleepResolver, workoutResolver)
 
 	gqlCfg := graphql.Config{
 		Resolvers: rootResolver,

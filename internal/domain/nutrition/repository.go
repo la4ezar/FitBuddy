@@ -75,30 +75,3 @@ func (r *Repository) GetAllNutritions(ctx context.Context, email string, date ti
 
 	return nutritions, nil
 }
-
-// GetAllMeals retrieves all exercises from the database.
-func (r *Repository) GetAllMeals(ctx context.Context) ([]*Meal, error) {
-	rows, err := r.db.QueryContext(ctx, `
-        SELECT m.id, m.name FROM meals m
-    `)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var meals []*Meal
-
-	for rows.Next() {
-		var meal Meal
-		if err := rows.Scan(&meal.ID, &meal.Name); err != nil {
-			return nil, err
-		}
-		meals = append(meals, &meal)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return meals, nil
-}

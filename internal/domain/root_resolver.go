@@ -2,11 +2,13 @@ package domain
 
 import (
 	"context"
+	"github.com/FitBuddy/internal/domain/booking"
 	"github.com/FitBuddy/internal/domain/coach"
 	"github.com/FitBuddy/internal/domain/exercise"
 	"github.com/FitBuddy/internal/domain/forum"
 	"github.com/FitBuddy/internal/domain/goal"
 	"github.com/FitBuddy/internal/domain/leaderboard"
+	"github.com/FitBuddy/internal/domain/meal"
 	"github.com/FitBuddy/internal/domain/nutrition"
 	"github.com/FitBuddy/internal/domain/sleep"
 	"github.com/FitBuddy/internal/domain/user"
@@ -20,24 +22,28 @@ var _ graphql.ResolverRoot = &RootResolver{}
 type RootResolver struct {
 	userResolver        *user.Resolver
 	coachResolver       *coach.Resolver
+	bookingResolver     *booking.Resolver
 	exerciseResolver    *exercise.Resolver
 	forumResolver       *forum.Resolver
 	goalResolver        *goal.Resolver
 	leaderboardResolver *leaderboard.Resolver
 	nutritionResolver   *nutrition.Resolver
+	mealResolver        *meal.Resolver
 	sleepResolver       *sleep.Resolver
 	workoutResolver     *workout.Resolver
 }
 
-func NewRootResolver(userResolver *user.Resolver, coachResolver *coach.Resolver, exerciseResolver *exercise.Resolver, forumResolver *forum.Resolver, goalResolver *goal.Resolver, leaderboardResolver *leaderboard.Resolver, nutritionResolver *nutrition.Resolver, sleepResolver *sleep.Resolver, workoutResolver *workout.Resolver) *RootResolver {
+func NewRootResolver(userResolver *user.Resolver, coachResolver *coach.Resolver, bookingResolver *booking.Resolver, exerciseResolver *exercise.Resolver, forumResolver *forum.Resolver, goalResolver *goal.Resolver, leaderboardResolver *leaderboard.Resolver, nutritionResolver *nutrition.Resolver, mealResolver *meal.Resolver, sleepResolver *sleep.Resolver, workoutResolver *workout.Resolver) *RootResolver {
 	return &RootResolver{
 		userResolver:        userResolver,
 		coachResolver:       coachResolver,
+		bookingResolver:     bookingResolver,
 		exerciseResolver:    exerciseResolver,
 		forumResolver:       forumResolver,
 		goalResolver:        goalResolver,
 		leaderboardResolver: leaderboardResolver,
 		nutritionResolver:   nutritionResolver,
+		mealResolver:        mealResolver,
 		sleepResolver:       sleepResolver,
 		workoutResolver:     workoutResolver,
 	}
@@ -96,12 +102,12 @@ func (m mutationResolver) DeleteSleepLog(ctx context.Context, sleepLogID string)
 
 // BookCoach books a coach
 func (m mutationResolver) BookCoach(ctx context.Context, email string, coachName string) (bool, error) {
-	return m.coachResolver.BookCoach(ctx, email, coachName)
+	return m.bookingResolver.BookCoach(ctx, email, coachName)
 }
 
 // UnbookCoach unbooks a coach
 func (m mutationResolver) UnbookCoach(ctx context.Context, email string, coachName string) (bool, error) {
-	return m.coachResolver.UnbookCoach(ctx, email, coachName)
+	return m.bookingResolver.UnbookCoach(ctx, email, coachName)
 
 }
 
@@ -171,12 +177,12 @@ func (q queryResolver) GetSleepLogByEmailAndDate(ctx context.Context, userEmail 
 
 // IsCoachBookedByUser checks if a coach is booked by user
 func (q queryResolver) IsCoachBookedByUser(ctx context.Context, coachName, userEmail string) (bool, error) {
-	return q.coachResolver.IsCoachBookedByUser(ctx, coachName, userEmail)
+	return q.bookingResolver.IsCoachBookedByUser(ctx, coachName, userEmail)
 }
 
 // IsCoachBooked checks if a coach is booked
 func (q queryResolver) IsCoachBooked(ctx context.Context, coachName string) (bool, error) {
-	return q.coachResolver.IsCoachBooked(ctx, coachName)
+	return q.bookingResolver.IsCoachBooked(ctx, coachName)
 }
 
 // GetAllCoaches gets all coaches
@@ -206,7 +212,7 @@ func (q queryResolver) GetAllNutritionsByEmailAndDate(ctx context.Context, email
 
 // GetAllMeals gets all meals
 func (q queryResolver) GetAllMeals(ctx context.Context) ([]*graphql.Meal, error) {
-	return q.nutritionResolver.GetAllMeals(ctx)
+	return q.mealResolver.GetAllMeals(ctx)
 }
 
 // GetGoals gets goals by user email

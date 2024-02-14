@@ -1,4 +1,4 @@
-package nutrition
+package meal
 
 // Meal represents a Meal entry in the application.
 type Meal struct {
